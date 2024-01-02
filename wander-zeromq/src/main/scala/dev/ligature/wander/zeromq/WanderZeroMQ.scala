@@ -6,7 +6,6 @@ package dev.ligature.wander.zeromq
 
 import org.zeromq.{ZMQ, ZContext, SocketType}
 
-import dev.ligature.Ligature
 import dev.ligature.wander.run as runWander
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.printWanderValue
