@@ -52,16 +52,6 @@ lazy val wanderZeroMQ = project
   )
   .dependsOn(wander)
 
-lazy val wanderCli = project
-  .in(file("wander-cli"))
-  .settings(
-    name := "wander-cli",
-    scalaVersion := scala3Version,
-    libraryDependencies += "com.github.freva" % "ascii-table" % "1.8.0",
-    libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
-  )
-  .dependsOn(wander)
-
 disablePlugins(RevolverPlugin)
 
 addCommandAlias("cd", "project")
