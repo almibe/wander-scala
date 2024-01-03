@@ -54,7 +54,7 @@ case class HostFunction(
 }
 
 case class HostProperty(
-    name: String,
+    name: Name,
     docString: String,
     resultTag: Tag,
     read: (
@@ -120,6 +120,6 @@ def printWanderValue(value: WanderValue, interpolation: Boolean = false): String
       "[" + values.map(value => printWanderValue(value, interpolation)).mkString(", ") + "]"
     case WanderValue.Record(values) =>
       "{" + values
-        .map((name, value) => name.name + " = " + printWanderValue(value, interpolation))
+        .map((name, value) => name.parts.mkString(".") + " = " + printWanderValue(value, interpolation))
         .mkString(", ") + "}"
   }

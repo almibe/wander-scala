@@ -14,6 +14,8 @@ import dev.ligature.wander.HostFunction
 import dev.ligature.wander.TaggedName
 import dev.ligature.wander.Tag
 
+def Name(name: String) = dev.ligature.wander.Name.from(name).getOrElse(???)
+
 val boolLibrary = Seq(
   HostFunction(
     Name("Bool.not"),

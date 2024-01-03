@@ -8,9 +8,9 @@ import dev.ligature.wander.Environment
 import dev.ligature.wander.HostFunction
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.TaggedName
-import dev.ligature.wander.Name
 import dev.ligature.wander.Tag
 import dev.ligature.wander.WanderError
+import dev.ligature.wander.HostProperty
 
 val coreLibrary = Seq(
   HostFunction(
@@ -110,5 +110,22 @@ val coreLibrary = Seq(
     (args: Seq[WanderValue], environment: Environment) =>
       args match
         case Seq(WanderValue.String(message)) => Left(WanderError(message))
+  ),
+)
+
+val coreProperties = Seq(
+  HostProperty(
+    Name("Core.environment"),
+    "Read all Bindings in the current scope.",
+    Tag.Single(Name("Core.Record")),
+    (environment: Environment) =>
+      // val names: List[WanderValue] = environment.functions.map(f => WanderValue.String(f.name.name))
+      // ++
+      // environment.properties.map(f => WanderValue.String(f.name.name))
+      // Right((WanderValue.Array(names), environment))
+      Right((WanderValue.Nothing, environment))
   )
 )
+
+private def readProperties(evironment: Environment): WanderValue.Record =
+  ???

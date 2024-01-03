@@ -39,7 +39,7 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.QuestionMark                      => Right(Expression.QuestionMark)
     case Term.Array(terms)                      => processArray(terms)
     case Term.BooleanLiteral(value)             => Right(Expression.BooleanValue(value))
-    case Term.Binding(name, value, exportName)  => processBinding(name, value)
+    case Term.Binding(name, value, exportName)  => processBinding(name, value, exportName)
     case Term.IntegerLiteral(value)             => Right(Expression.IntegerValue(value))
     case Term.NameTerm(value)                   => Right(Expression.NameExpression(value))
     case Term.StringLiteral(value, interpolate) => Right(Expression.StringValue(value, interpolate))
@@ -109,10 +109,10 @@ def processLambda(parameters: Seq[Name], body: Term): Either[WanderError, Expres
     case Right(value) => Right(Expression.Lambda(parameters, value))
   }
 
-def processBinding(name: TaggedName, value: Term): Either[WanderError, Expression.Binding] =
+def processBinding(name: TaggedName, value: Term, exportName: Boolean): Either[WanderError, Expression.Binding] =
   process(value) match {
     case Left(err)         => ???
-    case Right(expression) => Right(Expression.Binding(name, expression))
+    case Right(expression) => Right(Expression.Binding(name, expression, exportName))
   }
 
 def processArray(terms: Seq[Term]): Either[WanderError, Expression.Array] = {

@@ -24,7 +24,18 @@ import dev.ligature.gaze.repeatSep
 import scala.util.boundary
 import scala.util.boundary.break
 
-case class Name(name: String)
+final case class Name private (val parts: Seq[String]) {
+    private def copy: Unit = ()
+    override def toString(): String = this.parts.mkString(".")
+}
+
+object Name {
+    private def apply(name: String): Either[WanderError, Name] = {
+      Right(Name(name.split('.').toSeq))
+    }
+
+    def from(name: String) = Name(name)
+}
 
 case class TaggedName(name: Name, tag: Tag)
 
@@ -79,7 +90,8 @@ val exportNib: Nibbler[Token, Boolean] = gaze =>
   gaze.attempt(optional(take(Token.ExportKeyword))) match
     case Result.NoMatch    => Result.Match(false)
     case Result.EmptyMatch => Result.Match(false)
-    case Result.Match(_)   => Result.Match(true)
+    case Result.Match(Token.ExportKeyword)   => Result.Match(true)
+    case _ => Result.Match(false)
 
 val importNib: Nibbler[Token, Term] = gaze =>
   for {
@@ -114,12 +126,18 @@ val stringNib: Nibbler[Token, Term.StringLiteral] = gaze =>
 
 val importNameNib: Nibbler[Token, Name] = gaze =>
   gaze.next() match
-    case Some(Token.Name(n)) => Result.Match(Name(n))
+    case Some(Token.Name(n)) => 
+      Name.from(n) match
+        case Left(_) => ???
+        case Right(name) => Result.Match(name)
     case _                   => Result.NoMatch
 
 val nameNib: Nibbler[Token, Term.NameTerm] = gaze =>
   gaze.next() match
-    case Some(Token.Name(n)) => Result.Match(Term.NameTerm(Name(n)))
+    case Some(Token.Name(n)) =>
+      Name.from(n) match
+        case Left(err) => ???
+        case Right(name) => Result.Match(Term.NameTerm(name))
     case _                   => Result.NoMatch
 
 val tagNib: Nibbler[Token, Tag] = gaze =>
@@ -128,11 +146,14 @@ val tagNib: Nibbler[Token, Tag] = gaze =>
     while !gaze.isComplete do
       gaze.next() match
         case Some(Token.Name(name)) =>
-          names.append(Name(name))
-          gaze.peek() match {
-            case Some(Token.Arrow) => gaze.next() // swallow arrow, ouch!
-            case _                 => break()
-          }
+          Name.from(name) match
+            case Left(err) => break(Left(err))
+            case Right(name) =>
+              names.append(name)
+              gaze.peek() match {
+                case Some(Token.Arrow) => gaze.next() // swallow arrow, ouch!
+                case _                 => break()
+              }
         case _ => break()
   names.toSeq match {
     case Seq()            => Result.NoMatch
@@ -245,12 +266,13 @@ val bindingNib: Nibbler[Token, Term.Binding] = { gaze =>
 
 val taggedBindingNib: Nibbler[Token, Term.Binding] = { gaze =>
   for {
+    exportName <- gaze.attempt(exportNib)
     name <- gaze.attempt(nameNib)
     _ <- gaze.attempt(take(Token.Colon))
     tag <- gaze.attempt(tagNib)
     _ <- gaze.attempt(take(Token.EqualSign))
     value <- gaze.attempt(expressionNib)
-  } yield Term.Binding(TaggedName(name.value, tag), value)
+  } yield Term.Binding(TaggedName(name.value, tag), value, exportName)
 }
 
 val applicationInternalNib =

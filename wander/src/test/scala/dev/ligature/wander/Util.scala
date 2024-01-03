@@ -8,9 +8,9 @@ import dev.ligature.wander.Token
 import dev.ligature.wander.libraries.std
 
 class WanderSuiteCommonMode extends munit.FunSuite {
-  def check(script: String, expected: WanderValue) =
+  def check(script: String, expected: WanderValue, environment: Environment = std()) =
     assertEquals(
-      run(script, std()).getOrElse(???)._1,
-      expected
-    )
+      (run(script, environment) match
+        case Left(value) => throw RuntimeException(value.toString())
+        case Right((value, environment)) => value), expected)
 }

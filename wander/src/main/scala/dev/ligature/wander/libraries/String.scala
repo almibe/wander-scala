@@ -4,7 +4,11 @@
 
 package dev.ligature.wander.libraries
 
-import dev.ligature.wander.*
+import dev.ligature.wander.HostFunction
+import dev.ligature.wander.TaggedName
+import dev.ligature.wander.Tag
+import dev.ligature.wander.WanderValue
+
 
 val stringLibrary =
   Seq(

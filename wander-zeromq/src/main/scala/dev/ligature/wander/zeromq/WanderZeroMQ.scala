@@ -9,8 +9,12 @@ import org.zeromq.{ZMQ, ZContext, SocketType}
 import dev.ligature.wander.run as runWander
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.printWanderValue
-import dev.ligature.wander.libraries.std
+import dev.ligature.wander.libraries.loadFromPath
 import dev.ligature.wander.printResult
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.io.File
+import dev.ligature.wander.libraries.std
 
 private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
   private val zContext = ZContext()
@@ -22,8 +26,11 @@ private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
     while (!Thread.currentThread().isInterrupted() && continue)
       try
         val query = String(socket.recv(0), ZMQ.CHARSET) // blocks waiting for a request
-        val res = runWander(query, std())
-        socket.send(printResult(res).getBytes(ZMQ.CHARSET), 0)
+        loadFromPath(File(sys.env("WANDER_LIBS")).toPath(), std()) match
+          case Left(value) => ???
+          case Right(environment) =>
+            val res = runWander(query, environment)
+            socket.send(printResult(res).getBytes(ZMQ.CHARSET), 0)
       catch case e => continue = false
 
   override def close(): Unit = zContext.close()

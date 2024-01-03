@@ -17,7 +17,7 @@ enum Expression:
   case BooleanValue(value: Boolean)
   case Nothing
   case Array(value: Seq[Expression])
-  case Binding(name: TaggedName, value: Expression, exportName: Boolean = false)
+  case Binding(name: TaggedName, value: Expression, exportName: Boolean)
   case Record(values: Seq[(Name, Expression)])
   case Lambda(parameters: Seq[Name], body: Expression)
   case WhenExpression(conditionals: Seq[(Expression, Expression)])
@@ -42,7 +42,7 @@ def load(
         case Right((value, environment)) =>
           currentEnvironemnt = environment
           expression match
-            case Expression.Binding(TaggedName(name, tag), expression, exportName) =>
+            case Expression.Binding(TaggedName(name, tag), expression, true) =>
               eval(expression, currentEnvironemnt) match
                 case Left(err) => Left(err)
                 case Right((value, _)) =>
@@ -57,7 +57,7 @@ def eval(
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   expression match {
-    case Expression.Import(name)        => Right((WanderValue.Nothing, environment))
+    case Expression.Import(name)        => handleImport(name, environment)
     case Expression.Nothing             => Right((WanderValue.Nothing, environment))
     case Expression.BooleanValue(value) => Right((WanderValue.Bool(value), environment))
     case Expression.IntegerValue(value) => Right((WanderValue.Int(value), environment))
@@ -76,26 +76,35 @@ def eval(
     case Expression.Record(values)           => handleRecord(values, environment)
   }
 
+def handleImport(name: Name, environment: Environment): Either[WanderError, (WanderValue, Environment)] =
+  readName(name, environment) match
+    case Left(err) => Left(err)
+    case Right((value, _)) =>
+      ???
+
 def readName(
     name: Name,
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
-  val parts = name.name.split('.')
-  if parts.length == 0 then environment.read(name).map((_, environment))
-  else
-    environment.read(Name(parts(0))) match
-      case Left(err) => Left(WanderError(s"Could not read ${parts(0)}"))
-      case Right(value) =>
-        var lastValue = value
-        parts.tail.foreach { part =>
-          lastValue match
-            case WanderValue.Record(values) =>
-              values.get(Name(part)) match
-                case None        => ???
-                case Some(value) => lastValue = value
-            case _ => ???
-        }
-        Right((lastValue, environment))
+  environment.read(name) match
+    case Right(value) => Right((value, environment))
+    case Left(err) => Left(err)
+      // val parts = name.parts
+      // if parts.length == 0 then environment.read(name).map((_, environment))
+      // else
+      //   environment.read(Name(parts(0))) match
+      //     case Left(err) => Left(WanderError(s"Could not read ${parts(0)}"))
+      //     case Right(value) =>
+      //       var lastValue = value
+      //       parts.tail.foreach { part =>
+      //         lastValue match
+      //           case WanderValue.Record(values) =>
+      //             values.get(Name(part)) match
+      //               case None        => ???
+      //               case Some(value) => lastValue = value
+      //           case _ => ???
+      //       }
+      //       Right((lastValue, environment))
 
 def interpolateString(
     value: String,
@@ -198,7 +207,7 @@ def handleApplication(
               callPartialHostFunction(args, fn, arguments, environment)
             case WanderValue.Array(values)  => callArray(values, arguments, environment)
             case WanderValue.Record(values) => callRecord(values, arguments, environment)
-            case _ => Left(WanderError(s"Could not call function ${name.name}."))
+            case _ => Left(WanderError(s"Could not call function $name."))
           }
       }
     case _ => ???
@@ -234,8 +243,11 @@ def callRecord(
       eval(value, environment) match
         case Left(err) => Left(err)
         case Right((WanderValue.String(name), _)) =>
-          if values.contains(Name(name)) then Right(values(Name(name)), environment)
-          else Left(WanderError(s"Could not read $name from Record."))
+          Name.from(name) match
+            case Left(err) => ???
+            case Right(name) =>
+              if values.contains(name) then Right(values(name), environment)
+              else Left(WanderError(s"Could not read $name from Record."))
         case _ => Left(WanderError("Error attempting to read Record."))
     case _ => Left(WanderError("Error attempting to read Record."))
 

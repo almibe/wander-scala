@@ -4,8 +4,11 @@
 
 package dev.ligature.wander.libraries
 
-import dev.ligature.wander.*
 import javax.lang.model.`type`.ErrorType
+import dev.ligature.wander.HostFunction
+import dev.ligature.wander.TaggedName
+import dev.ligature.wander.Tag
+import dev.ligature.wander.WanderValue
 
 val intLibrary = Seq(
   HostFunction(

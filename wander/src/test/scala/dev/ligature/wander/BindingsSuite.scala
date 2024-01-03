@@ -8,8 +8,8 @@ import dev.ligature.wander.WanderValue
 import munit.FunSuite
 
 class EnvironmentSuite extends FunSuite {
-  private val identifier = TaggedName(Name("test"), Tag.Untagged)
-  private val identifier2 = TaggedName(Name("test2"), Tag.Untagged)
+  private val identifier = TaggedName(UName("test"), Tag.Untagged)
+  private val identifier2 = TaggedName(UName("test2"), Tag.Untagged)
 
   private val value1 = WanderValue.String("this is a test")
   private val value2 = WanderValue.String("this is a test2")

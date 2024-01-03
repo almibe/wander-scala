@@ -73,7 +73,7 @@ case class Environment(
       case None           => ()
       case Some(function) => return Right(WanderValue.Function(function))
     }
-    this.properties.find(_.name == name.name) match {
+    this.properties.find(_.name == name) match {
       case None                                  => ()
       case Some(HostProperty(_, _, _, property)) => return property(this).map(value => value._1)
     }

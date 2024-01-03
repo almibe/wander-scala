@@ -9,13 +9,13 @@ import dev.ligature.wander.*
 
 class LambdaSuite extends munit.FunSuite {
   val testFunction = HostFunction(
-    Name("test"),
+    UName("test"),
     "",
     Seq(
-      TaggedName(Name("a"), Tag.Untagged),
-      TaggedName(Name("b"), Tag.Untagged),
-      TaggedName(Name("c"), Tag.Untagged),
-      TaggedName(Name("d"), Tag.Untagged)
+      TaggedName(UName("a"), Tag.Untagged),
+      TaggedName(UName("b"), Tag.Untagged),
+      TaggedName(UName("c"), Tag.Untagged),
+      TaggedName(UName("d"), Tag.Untagged)
     ),
     Tag.Untagged,
     (args, environment) => Right((WanderValue.Int(5), environment))
