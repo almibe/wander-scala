@@ -62,13 +62,13 @@ class LiteralsSuite extends munit.FunSuite {
   }
   test("record literal with one value") {
     val script = "{x = 5}"
-    val result = WanderValue.Record(Map((UName("x"), WanderValue.Int(5))))
+    val result = WanderValue.Record(Map((UName("x").head, WanderValue.Int(5))))
     check(script, result)
   }
   test("record literal with multiple values") {
     val script = "{x = 5, notFalse = true}"
     val result = WanderValue.Record(
-      Map((UName("x"), WanderValue.Int(5)), (UName("notFalse"), WanderValue.Bool(true)))
+      Map((UName("x").head, WanderValue.Int(5)), (UName("notFalse").head, WanderValue.Bool(true)))
     )
     check(script, result)
   }

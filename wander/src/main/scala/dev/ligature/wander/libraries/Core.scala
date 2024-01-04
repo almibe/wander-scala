@@ -110,7 +110,7 @@ val coreLibrary = Seq(
     (args: Seq[WanderValue], environment: Environment) =>
       args match
         case Seq(WanderValue.String(message)) => Left(WanderError(message))
-  ),
+  )
 )
 
 val coreProperties = Seq(

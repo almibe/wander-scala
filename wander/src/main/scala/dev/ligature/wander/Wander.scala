@@ -38,7 +38,7 @@ case class PartialFunction(args: Seq[WanderValue], function: dev.ligature.wander
 }
 
 case class HostFunction(
-    name: Name,
+    name: Seq[Name],
     docString: String,
     parameters: Seq[TaggedName],
     resultTag: Tag,
@@ -54,7 +54,7 @@ case class HostFunction(
 }
 
 case class HostProperty(
-    name: Name,
+    name: Seq[Name],
     docString: String,
     resultTag: Tag,
     read: (
@@ -120,6 +120,6 @@ def printWanderValue(value: WanderValue, interpolation: Boolean = false): String
       "[" + values.map(value => printWanderValue(value, interpolation)).mkString(", ") + "]"
     case WanderValue.Record(values) =>
       "{" + values
-        .map((name, value) => name.parts.mkString(".") + " = " + printWanderValue(value, interpolation))
+        .map((name, value) => name.value + " = " + printWanderValue(value, interpolation))
         .mkString(", ") + "}"
   }

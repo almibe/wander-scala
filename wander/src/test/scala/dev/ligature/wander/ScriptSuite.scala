@@ -10,7 +10,7 @@ import dev.ligature.wander.libraries.std
 import dev.ligature.wander.libraries.loadFromPath
 import java.nio.file.Path
 
-def UName(name: String) = Name.from(name).getOrElse(???)
+def UName(name: String): Seq[Name] = Name.from(name).getOrElse(???)
 
 class ScriptSuite extends munit.FunSuite {
   sys.env.get("WANDER_TEST_SUITE") match {
@@ -26,7 +26,7 @@ class ScriptSuite extends munit.FunSuite {
           case Left(value) => ???
           case Right(environment) =>
             run(script, environment) match {
-              case Left(err) => fail(err.toString())
+              case Left(err) => fail(f.toString() + err.toString())
               case Right((results, _)) =>
                 evaluateResults(results)
             }
@@ -41,9 +41,9 @@ class ScriptSuite extends munit.FunSuite {
         tests.foreach { currentTest =>
           currentTest match
             case WanderValue.Record(values) =>
-              test(values(UName("name")).toString) {
-                val test = values(UName("test"))
-                val expected = values(UName("expect"))
+              test(values(UName("name").head).toString) {
+                val test = values(UName("test").head)
+                val expected = values(UName("expect").head)
                 assertEquals(test, expected)
               }
             case _ => ???

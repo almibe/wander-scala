@@ -12,7 +12,7 @@ import scala.util.boundary.break
 case class Environment(
     functions: List[HostFunction] = List(),
     properties: List[HostProperty] = List(),
-    scopes: List[Map[Name, (Tag, WanderValue)]] = List(Map())
+    scopes: List[Map[Seq[Name], (Tag, WanderValue)]] = List(Map())
 ) {
   def eval(expressions: Seq[Expression]): Either[WanderError, (WanderValue, Environment)] = {
     var env = this
@@ -60,7 +60,7 @@ case class Environment(
         )
     }
 
-  def read(name: Name): Either[WanderError, WanderValue] = {
+  def read(name: Seq[Name]): Either[WanderError, WanderValue] = {
     var currentScopeOffset = this.scopes.length - 1
     while (currentScopeOffset >= 0) {
       val currentScope = this.scopes(currentScopeOffset)
@@ -69,22 +69,36 @@ case class Environment(
       }
       currentScopeOffset -= 1
     }
-    this.functions.find(_.name == name) match {
-      case None           => ()
-      case Some(function) => return Right(WanderValue.Function(function))
-    }
+    // TODO remove the code below once bindings are fixed
+    // this.functions.find(_.name == name) match {
+    //   case None           => ()
+    //   case Some(function) => return Right(WanderValue.Function(function))
+    // }
     this.properties.find(_.name == name) match {
       case None                                  => ()
       case Some(HostProperty(_, _, _, property)) => return property(this).map(value => value._1)
     }
-
     Left(WanderError(s"Could not find ${name} in scope."))
   }
 
+  def importModule(name: Seq[Name]): Either[WanderError, Environment] =
+    this.functions
+      .filter(f => f.name.startsWith(name))
+      .foreach(f => Seq(f.name.last))
+    Right(this) // TODO wrong
+
   def addHostFunctions(functions: Seq[HostFunction]): Environment =
-    this.copy(functions = this.functions ++ functions)
+    var currentEnvironemnt = this
+    functions.foreach(f =>
+      currentEnvironemnt = currentEnvironemnt
+        .bindVariable(TaggedName(f.name, Tag.Untagged), WanderValue.Function(f))
+        .getOrElse(???)
+    )
+    currentEnvironemnt.copy(functions = currentEnvironemnt.functions ++ functions)
 
   def addHostProperties(properties: Seq[HostProperty]): Environment =
+    var currentEnvironemnt = this
+//    properties.foreach(p => currentEnvironemnt = currentEnvironemnt.bindVariable(TaggedName(p.name, p.resultTag), p.))
     this.copy(properties = this.properties ++ properties)
 
   def checkTag(tag: Tag, value: WanderValue): Either[WanderError, WanderValue] =
@@ -94,7 +108,7 @@ case class Environment(
       case Tag.Function(tags) => checkFunctionTag(tags, value)
     }
 
-  private def checkSingleTag(tag: Name, value: WanderValue): Either[WanderError, WanderValue] =
+  private def checkSingleTag(tag: Seq[Name], value: WanderValue): Either[WanderError, WanderValue] =
     this.read(tag) match {
       case Right(WanderValue.Function(hf: HostFunction)) =>
         hf.fn(Seq(value), this) match {
@@ -108,7 +122,7 @@ case class Environment(
         assert(lambda.lambda.parameters.size == 1)
         var environment = this.newScope()
         environment = environment
-          .bindVariable(TaggedName(lambda.lambda.parameters.head, Tag.Untagged), value)
+          .bindVariable(TaggedName(lambda.lambda.parameters, Tag.Untagged), value)
           .getOrElse(???)
         dev.ligature.wander.eval(lambda.lambda.body, environment) match {
           case Right((WanderValue.Bool(true), _)) => Right(value)
@@ -122,7 +136,7 @@ case class Environment(
     }
 
   private def checkFunctionTag(
-      tags: Seq[Name],
+      tags: Seq[Seq[Name]],
       value: WanderValue
   ): Either[WanderError, WanderValue] =
     Right(value)

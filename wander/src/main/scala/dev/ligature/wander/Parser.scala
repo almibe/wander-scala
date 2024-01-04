@@ -24,29 +24,28 @@ import dev.ligature.gaze.repeatSep
 import scala.util.boundary
 import scala.util.boundary.break
 
-final case class Name private (val parts: Seq[String]) {
-    private def copy: Unit = ()
-    override def toString(): String = this.parts.mkString(".")
+final case class Name private (val value: String) {
+  private def copy: Unit = ()
+  override def toString(): String = value
 }
 
 object Name {
-    private def apply(name: String): Either[WanderError, Name] = {
-      Right(Name(name.split('.').toSeq))
-    }
+  private def apply(name: String): Either[WanderError, Seq[Name]] =
+    Right(name.split('.').map(part => new Name(part)).toSeq)
 
-    def from(name: String) = Name(name)
+  def from(name: String) = Name(name)
 }
 
-case class TaggedName(name: Name, tag: Tag)
+case class TaggedName(name: Seq[Name], tag: Tag)
 
 enum Tag:
   case Untagged
-  case Single(name: Name)
-  case Function(names: Seq[Name])
+  case Single(name: Seq[Name])
+  case Function(names: Seq[Seq[Name]])
 
 enum Term:
-  case Import(name: Name)
-  case NameTerm(value: Name)
+  case Import(name: Seq[Name])
+  case NameTerm(value: Seq[Name])
   case IntegerLiteral(value: Long)
   case StringLiteral(value: String, interpolated: Boolean = false)
   case BooleanLiteral(value: Boolean)
@@ -88,10 +87,10 @@ def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
 
 val exportNib: Nibbler[Token, Boolean] = gaze =>
   gaze.attempt(optional(take(Token.ExportKeyword))) match
-    case Result.NoMatch    => Result.Match(false)
-    case Result.EmptyMatch => Result.Match(false)
-    case Result.Match(Token.ExportKeyword)   => Result.Match(true)
-    case _ => Result.Match(false)
+    case Result.NoMatch                    => Result.Match(false)
+    case Result.EmptyMatch                 => Result.Match(false)
+    case Result.Match(Token.ExportKeyword) => Result.Match(true)
+    case _                                 => Result.Match(false)
 
 val importNib: Nibbler[Token, Term] = gaze =>
   for {
@@ -124,24 +123,24 @@ val stringNib: Nibbler[Token, Term.StringLiteral] = gaze =>
     case Some(Token.StringLiteral(s, i)) => Result.Match(Term.StringLiteral(s, i))
     case _                               => Result.NoMatch
 
-val importNameNib: Nibbler[Token, Name] = gaze =>
+val importNameNib: Nibbler[Token, Seq[Name]] = gaze =>
   gaze.next() match
-    case Some(Token.Name(n)) => 
+    case Some(Token.Name(n)) =>
       Name.from(n) match
-        case Left(_) => ???
+        case Left(_)     => ???
         case Right(name) => Result.Match(name)
-    case _                   => Result.NoMatch
+    case _ => Result.NoMatch
 
 val nameNib: Nibbler[Token, Term.NameTerm] = gaze =>
   gaze.next() match
     case Some(Token.Name(n)) =>
       Name.from(n) match
-        case Left(err) => ???
+        case Left(err)   => ???
         case Right(name) => Result.Match(Term.NameTerm(name))
-    case _                   => Result.NoMatch
+    case _ => Result.NoMatch
 
 val tagNib: Nibbler[Token, Tag] = gaze =>
-  val names = ListBuffer[Name]()
+  val names = ListBuffer[Seq[Name]]()
   boundary:
     while !gaze.isComplete do
       gaze.next() match
@@ -156,15 +155,16 @@ val tagNib: Nibbler[Token, Tag] = gaze =>
               }
         case _ => break()
   names.toSeq match {
-    case Seq()            => Result.NoMatch
-    case Seq(name)        => Result.Match(Tag.Single(name))
-    case names: Seq[Name] => Result.Match(Tag.Function(names))
+    case Seq()                 => Result.NoMatch
+    case Seq(name)             => Result.Match(Tag.Single(name))
+    case names: Seq[Seq[Name]] => Result.Match(Tag.Function(names))
   }
 
 val parameterNib: Nibbler[Token, Name] = { gaze =>
-  for {
-    name <- gaze.attempt(nameNib)
-  } yield name.value
+  gaze.next() match
+    case Some(Token.Name(name)) => Result.Match(Name.from(name).getOrElse(???).head)
+    case None                   => Result.NoMatch
+    case _                      => Result.NoMatch
 }
 
 val lambdaNib: Nibbler[Token, Term.Lambda] = { gaze =>
@@ -206,20 +206,20 @@ val fieldNibNameOnly: Nibbler[Token, (Name, Term)] = { gaze =>
     for name <- gaze.attempt(nameNib)
     yield name
   res match {
-    case Result.Match(Term.NameTerm(name)) => Result.Match((name, Term.NameTerm(name)))
-    case _                                 => Result.NoMatch
+    case Result.Match(Term.NameTerm(Seq(name))) => Result.Match((name, Term.NameTerm(Seq(name))))
+    case _                                      => Result.NoMatch
   }
 }
 
 val fieldNibNameValue: Nibbler[Token, (Name, Term)] = { gaze =>
   val res = for
-    name <- gaze.attempt(nameNib)
+    name <- gaze.attempt(parameterNib)
     _ <- gaze.attempt(take(Token.EqualSign))
     expression <- gaze.attempt(expressionNib)
   yield (name, expression)
   res match {
-    case Result.Match((Term.NameTerm(name), term: Term)) => Result.Match((name, term))
-    case _                                               => Result.NoMatch
+    case Result.Match((name, term: Term)) => Result.Match((name, term))
+    case _                                => Result.NoMatch
   }
 }
 

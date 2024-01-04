@@ -109,7 +109,11 @@ def processLambda(parameters: Seq[Name], body: Term): Either[WanderError, Expres
     case Right(value) => Right(Expression.Lambda(parameters, value))
   }
 
-def processBinding(name: TaggedName, value: Term, exportName: Boolean): Either[WanderError, Expression.Binding] =
+def processBinding(
+    name: TaggedName,
+    value: Term,
+    exportName: Boolean
+): Either[WanderError, Expression.Binding] =
   process(value) match {
     case Left(err)         => ???
     case Right(expression) => Right(Expression.Binding(name, expression, exportName))

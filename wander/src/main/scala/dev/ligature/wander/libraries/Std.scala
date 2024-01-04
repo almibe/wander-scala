@@ -40,9 +40,11 @@ def loadFromPath(path: Path, environment: Environment): Either[WanderError, Envi
     .iterator()
     .asScala
     .filter(Files.isRegularFile(_))
-    .filter(f => f.getFileName().toString().endsWith(".wander") 
-      &&
-      ! f.getFileName().toString().endsWith(".test.wander"))
+    .filter(f =>
+      f.getFileName().toString().endsWith(".wander")
+        &&
+          !f.getFileName().toString().endsWith(".test.wander")
+    )
     .foreach { file =>
       val modname = file.toFile().getName().split('.').head
       Using(Source.fromFile(file.toFile()))(_.mkString) match
@@ -53,7 +55,7 @@ def loadFromPath(path: Path, environment: Environment): Either[WanderError, Envi
             case Left(err) => Left(err)
             case Right(values) =>
               values.foreach((name, value) =>
-                val fullName = Name.from(modname + "." + name.parts.mkString(".")).getOrElse(???)
+                val fullName = Name.from(modname + "." + name).getOrElse(???)
                 resultEnvironment =
                   resultEnvironment.bindVariable(TaggedName(fullName, Tag.Untagged), value) match
                     case Left(value)  => ???

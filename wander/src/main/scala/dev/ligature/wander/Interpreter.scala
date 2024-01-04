@@ -10,8 +10,8 @@ import scala.util.boundary, boundary.break
 import scala.collection.mutable
 
 enum Expression:
-  case Import(name: Name)
-  case NameExpression(value: Name)
+  case Import(name: Seq[Name])
+  case NameExpression(value: Seq[Name])
   case IntegerValue(value: Long)
   case StringValue(value: String, interpolated: Boolean = false)
   case BooleanValue(value: Boolean)
@@ -42,7 +42,7 @@ def load(
         case Right((value, environment)) =>
           currentEnvironemnt = environment
           expression match
-            case Expression.Binding(TaggedName(name, tag), expression, true) =>
+            case Expression.Binding(TaggedName(Seq(name), tag), expression, true) =>
               eval(expression, currentEnvironemnt) match
                 case Left(err) => Left(err)
                 case Right((value, _)) =>
@@ -76,35 +76,22 @@ def eval(
     case Expression.Record(values)           => handleRecord(values, environment)
   }
 
-def handleImport(name: Name, environment: Environment): Either[WanderError, (WanderValue, Environment)] =
-  readName(name, environment) match
+def handleImport(
+    name: Seq[Name],
+    environment: Environment
+): Either[WanderError, (WanderValue, Environment)] =
+  environment.importModule(name) match
     case Left(err) => Left(err)
-    case Right((value, _)) =>
-      ???
+    case Right(environment) =>
+      Right((WanderValue.Nothing, environment))
 
 def readName(
-    name: Name,
+    name: Seq[Name],
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   environment.read(name) match
     case Right(value) => Right((value, environment))
-    case Left(err) => Left(err)
-      // val parts = name.parts
-      // if parts.length == 0 then environment.read(name).map((_, environment))
-      // else
-      //   environment.read(Name(parts(0))) match
-      //     case Left(err) => Left(WanderError(s"Could not read ${parts(0)}"))
-      //     case Right(value) =>
-      //       var lastValue = value
-      //       parts.tail.foreach { part =>
-      //         lastValue match
-      //           case WanderValue.Record(values) =>
-      //             values.get(Name(part)) match
-      //               case None        => ???
-      //               case Some(value) => lastValue = value
-      //           case _ => ???
-      //       }
-      //       Right((lastValue, environment))
+    case Left(err)    => Left(err)
 
 def interpolateString(
     value: String,
@@ -207,7 +194,7 @@ def handleApplication(
               callPartialHostFunction(args, fn, arguments, environment)
             case WanderValue.Array(values)  => callArray(values, arguments, environment)
             case WanderValue.Record(values) => callRecord(values, arguments, environment)
-            case _ => Left(WanderError(s"Could not call function $name."))
+            case _                          => Left(WanderError(s"Could not call function $name."))
           }
       }
     case _ => ???
@@ -245,9 +232,10 @@ def callRecord(
         case Right((WanderValue.String(name), _)) =>
           Name.from(name) match
             case Left(err) => ???
-            case Right(name) =>
+            case Right(Seq(name)) =>
               if values.contains(name) then Right(values(name), environment)
               else Left(WanderError(s"Could not read $name from Record."))
+            case _ => ???
         case _ => Left(WanderError("Error attempting to read Record."))
     case _ => Left(WanderError("Error attempting to read Record."))
 
@@ -263,7 +251,7 @@ def callLambda(
       val argument = eval(arguments(index), environment) match {
         case Left(value) => ???
         case Right(value) =>
-          fnScope.bindVariable(TaggedName(param, Tag.Untagged), value._1) match {
+          fnScope.bindVariable(TaggedName(Seq(param), Tag.Untagged), value._1) match {
             case Left(err)    => ???
             case Right(value) => fnScope = value
           }
@@ -304,7 +292,7 @@ def callPartialLambda(
       val argument = eval(arg, environment) match {
         case Left(value) => ???
         case Right(value) =>
-          fnScope.bindVariable(TaggedName(param, Tag.Untagged), value._1) match {
+          fnScope.bindVariable(TaggedName(Seq(param), Tag.Untagged), value._1) match {
             case Left(err)    => ???
             case Right(value) => fnScope = value
           }

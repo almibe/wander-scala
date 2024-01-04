@@ -101,7 +101,7 @@ class ParserSuite extends FunSuite {
     val result = check("\\x -> x")
     val expected = Right(
       Seq(
-        Term.Lambda(Seq(UName("x")), Term.NameTerm(UName("x")))
+        Term.Lambda(UName("x"), Term.NameTerm(UName("x")))
       )
     )
     assertEquals(result, expected)
@@ -113,7 +113,7 @@ class ParserSuite extends FunSuite {
         Seq(
           Term.Binding(
             TaggedName(UName("id"), Tag.Untagged),
-            Term.Lambda(Seq(UName("x")), Term.NameTerm(UName("x")))
+            Term.Lambda(UName("x"), Term.NameTerm(UName("x")))
           )
         )
       )
@@ -168,7 +168,11 @@ class ParserSuite extends FunSuite {
     val result = check("{x = 5}")
     val expected = Right(
       Seq(
-        Term.Record(Seq((UName("x"), Term.IntegerLiteral(5))))
+        Term.Record(
+          Seq(
+            (UName("x").head, Term.IntegerLiteral(5))
+          )
+        )
       )
     )
     assertEquals(result, expected)
@@ -177,7 +181,9 @@ class ParserSuite extends FunSuite {
     val result = check("{x = 5, y = 6}")
     val expected = Right(
       Seq(
-        Term.Record(Seq((UName("x"), Term.IntegerLiteral(5)), (UName("y"), Term.IntegerLiteral(6))))
+        Term.Record(
+          Seq((UName("x").head, Term.IntegerLiteral(5)), (UName("y").head, Term.IntegerLiteral(6)))
+        )
       )
     )
     assertEquals(result, expected)
@@ -200,7 +206,10 @@ class ParserSuite extends FunSuite {
     val result = check("zero: Core.Int = 0")
     val expected = Right(
       Seq(
-        Term.Binding(TaggedName(UName("zero"), Tag.Single(UName("Core.Int"))), Term.IntegerLiteral(0))
+        Term.Binding(
+          TaggedName(UName("zero"), Tag.Single(UName("Core.Int"))),
+          Term.IntegerLiteral(0)
+        )
       )
     )
     assertEquals(result, expected)
@@ -211,7 +220,7 @@ class ParserSuite extends FunSuite {
       Seq(
         Term.Binding(
           TaggedName(UName("x"), Tag.Function(Seq(UName("Core.Int"), UName("Core.Bool")))),
-          Term.Lambda(Seq(UName("i")), Term.BooleanLiteral(false))
+          Term.Lambda(UName("i"), Term.BooleanLiteral(false))
         )
       )
     )
