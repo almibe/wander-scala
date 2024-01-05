@@ -8,7 +8,7 @@ import dev.ligature.wander.Token
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.libraries.std
 
-class LetSuite extends munit.FunSuite {
+class BindingSuite extends munit.FunSuite {
   def check(script: String, expected: WanderValue) =
     assertEquals(
       run(script, std()) match

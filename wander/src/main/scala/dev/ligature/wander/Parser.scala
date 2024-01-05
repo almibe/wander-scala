@@ -105,17 +105,14 @@ val stringNib: Nibbler[Token, Term.StringLiteral] = gaze =>
     case Some(Token.StringLiteral(s, i)) => Result.Match(Term.StringLiteral(s, i))
     case _                               => Result.NoMatch
 
-val fieldPathNib: Nibbler[Token, FieldPath] = gaze => ???
-// gaze.next() match
-//   case Some(Token.Name(name)) =>
-//     val parts = name.split('.').map(Field(_))
-//     Result.Match(Name(parts))
-//   case _ => Result.NoMatch
-
 val fieldNib: Nibbler[Token, Field] = gaze =>
   gaze.next() match
     case Some(Token.Field(name)) => Result.Match(Field(name))
     case _                       => Result.NoMatch
+
+val fieldPathNib: Nibbler[Token, FieldPath] = gaze =>
+  for values <- gaze.attempt(optionalSeq(repeatSep(fieldNib, Token.Dot)))
+  yield FieldPath(values)
 
 val fieldTermNib: Nibbler[Token, Term.FieldTerm] = gaze =>
   gaze.next() match
@@ -192,20 +189,26 @@ val fieldNibNameOnly: Nibbler[Token, (Field, Term)] = { gaze =>
 }
 
 val fieldNibNameValue: Nibbler[Token, (Field, Term)] = { gaze =>
-  ???
-// val res = for
-//   field <- gaze.attempt(fieldNib)
-//   _ <- gaze.attempt(take(Token.EqualSign))
-//   expression <- gaze.attempt(expressionNib)
-// yield (name, expression)
-// res match {
-//   case Result.Match((field, term: Term)) => Result.Match((field, term))
-//   case _                                => Result.NoMatch
-// }
+  val res = for
+    field <- gaze.attempt(fieldNib)
+    _ <- gaze.attempt(take(Token.EqualSign))
+    expression <- gaze.attempt(expressionNib)
+  yield (field, expression)
+  res match {
+    case Result.Match((field, term: Term)) => Result.Match((field, term))
+    case _                                 => Result.NoMatch
+  }
 }
 
 val moduleFieldNib: Nibbler[Token, (dev.ligature.wander.Field, Term)] =
   takeFirst(fieldNibNameValue, fieldNibNameOnly)
+
+val fieldPathTermNib: Nibbler[Token, Term] =
+  takeFirst(fieldPathNib, fieldNib).map(
+    _ match
+      case fieldPath: FieldPath => Term.FieldPathTerm(fieldPath)
+      case field: Field         => Term.FieldTerm(field)
+  )
 
 val moduleNib: Nibbler[Token, Term.Module] = { gaze =>
   val res = for
@@ -278,6 +281,7 @@ val expressionNib =
   takeFirst(
     importNib,
     bindingNib,
+    fieldPathTermNib,
     taggedBindingNib,
     applicationNib,
     lambdaNib,

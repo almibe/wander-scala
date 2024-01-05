@@ -54,16 +54,16 @@ case class Environment(
         )
     }
 
-  def read(field: Field): Either[WanderError, WanderValue] = ???
-  //   var currentScopeOffset = this.scopes.length - 1
-  //   while (currentScopeOffset >= 0) {
-  //     val currentScope = this.scopes(currentScopeOffset)
-  //     if (currentScope.contains(name)) {
-  //       return Right(currentScope(name)._2)
-  //     }
-  //     currentScopeOffset -= 1
-  //   }
-  //   Left(WanderError(s"Could not find ${name} in scope."))
+  def read(field: Field): Either[WanderError, WanderValue] =
+    var currentScopeOffset = this.scopes.length - 1
+    while (currentScopeOffset >= 0) {
+      val currentScope = this.scopes(currentScopeOffset)
+      if (currentScope.contains(field)) {
+        return Right(currentScope(field)._2)
+      }
+      currentScopeOffset -= 1
+    }
+    Left(WanderError(s"Could not find ${field.name} in scope."))
 
   def read(fieldPath: FieldPath): Either[WanderError, WanderValue] = ???
   //   var currentScopeOffset = this.scopes.length - 1
