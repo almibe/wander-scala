@@ -38,6 +38,15 @@ case class Environment(
     )
 
   def bindVariable(
+      field: Field,
+      wanderValue: WanderValue
+  ): Environment =
+    val currentScope = this.scopes.last
+    val newVariables = currentScope + (field -> (Tag.Untagged, wanderValue))
+    val oldScope = this.scopes.dropRight(1)
+    Environment(oldScope.appended(newVariables))
+
+  def bindVariable(
       taggedField: TaggedField,
       wanderValue: WanderValue
   ): Either[WanderError, Environment] =
@@ -65,16 +74,23 @@ case class Environment(
     }
     Left(WanderError(s"Could not find ${field.name} in scope."))
 
-  def read(fieldPath: FieldPath): Either[WanderError, WanderValue] = ???
-  //   var currentScopeOffset = this.scopes.length - 1
-  //   while (currentScopeOffset >= 0) {
-  //     val currentScope = this.scopes(currentScopeOffset)
-  //     if (currentScope.contains(name)) {
-  //       return Right(currentScope(name)._2)
-  //     }
-  //     currentScopeOffset -= 1
-  //   }
-  //   Left(WanderError(s"Could not find ${name} in scope."))
+  def read(fieldPath: FieldPath): Either[WanderError, WanderValue] =
+    boundary:
+      var result: Either[WanderError, WanderValue] =
+        Left(WanderError(s"Could not read $fieldPath."))
+      fieldPath.parts.foreach(field =>
+        if result.isLeft then
+          this.read(field) match
+            case Left(err)    => break(Left(err))
+            case Right(value) => result = Right(value)
+        else
+          result match
+            case Right(WanderValue.Module(module)) =>
+              if module.contains(field) then result = Right(module(field))
+              else Left(WanderError(s"Could not read field path, $fieldPath."))
+            case _ => ???
+      )
+      result
 
   def importModule(name: FieldPath): Either[WanderError, Environment] =
     ???

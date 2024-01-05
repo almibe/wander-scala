@@ -11,18 +11,22 @@ import dev.ligature.wander.libraries.loadFromPath
 import java.nio.file.Path
 
 class PropertySuite extends WanderSuiteCommonMode {
-  // val properties = Seq(
-  //   HostProperty(
-  //     UName("prop"),
-  //     "A test property.",
-  //     Tag.Untagged,
-  //     environment => Right((WanderValue.Int(5), environment))
-  //   )
-  // )
-  // val env = std()//.addHostProperties(properties)
-  // test("Read basic property") {
-  //   val script = "prop"
-  //   val expected = WanderValue.Int(5)
-  //   check(script, expected, env)
-  // }
+  val properties = WanderValue.Module(
+    Map(
+      Field("prop") -> WanderValue.Property(
+        HostProperty(
+          "A test property.",
+          Tag.Untagged,
+          environment => Right((WanderValue.Int(5), environment))
+        )
+      )
+    )
+  )
+  val env = std()
+    .bindVariable(Field("Props"), properties)
+  test("Read basic property") {
+    val script = "Props.prop"
+    val expected = WanderValue.Int(5)
+    check(script, expected, env)
+  }
 }

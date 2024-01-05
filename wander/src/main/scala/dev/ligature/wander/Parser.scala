@@ -25,21 +25,21 @@ import scala.util.boundary
 import scala.util.boundary.break
 
 enum Term:
-  case Import(fieldPath: dev.ligature.wander.FieldPath)
-  case FieldTerm(field: dev.ligature.wander.Field)
-  case FieldPathTerm(fieldPath: dev.ligature.wander.FieldPath)
+  case Import(fieldPath: FieldPath)
+  case FieldTerm(field: Field)
+  case FieldPathTerm(fieldPath: FieldPath)
   case IntegerLiteral(value: Long)
   case StringLiteral(value: String, interpolated: Boolean = false)
   case BooleanLiteral(value: Boolean)
   case NothingLiteral
   case QuestionMark
   case Array(value: Seq[Term])
-  case Binding(TaggedField: TaggedField, term: Term, exportName: Boolean = false)
-  case Module(bindings: Seq[(dev.ligature.wander.Field, Term)])
+  case Binding(field: Field, tag: Option[FieldPath], term: Term, exportName: Boolean = false)
+  case Module(bindings: Seq[(Field, Term)])
   case WhenExpression(conditionals: Seq[(Term, Term)])
   case Application(terms: Seq[Term])
   case Grouping(terms: Seq[Term])
-  case Lambda(parameters: Seq[dev.ligature.wander.Field], body: Term)
+  case Lambda(parameters: Seq[Field], body: Term)
   case Pipe
 
 def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
@@ -111,7 +111,7 @@ val fieldNib: Nibbler[Token, Field] = gaze =>
     case _                       => Result.NoMatch
 
 val fieldPathNib: Nibbler[Token, FieldPath] = gaze =>
-  for values <- gaze.attempt(optionalSeq(repeatSep(fieldNib, Token.Dot)))
+  for values <- gaze.attempt(repeatSep(fieldNib, Token.Dot))
   yield FieldPath(values)
 
 val fieldTermNib: Nibbler[Token, Term.FieldTerm] = gaze =>
@@ -119,23 +119,31 @@ val fieldTermNib: Nibbler[Token, Term.FieldTerm] = gaze =>
     case Some(Token.Field(name)) => Result.Match(Term.FieldTerm(Field(name)))
     case _                       => Result.NoMatch
 
-val tagNib: Nibbler[Token, Tag] = gaze => ???
-// val names = ListBuffer[FieldPath]()
-// boundary:
-//   while !gaze.isComplete do
-//     gaze.next() match
-//       case Some(Token.Field(name)) =>
-//         names.append(Field(name))
-//         gaze.peek() match {
-//           case Some(Token.Arrow) => gaze.next() // swallow arrow, ouch!
-//           case _                 => break()
-//         }
-//       case _ => break()
-// names.toSeq match {
-//   case Seq()                 => Result.NoMatch
-//   case Seq(field)             => Result.Match(Tag.Single(name))
-//   case names: Seq[Seq[Name]] => Result.Match(Tag.Chain(names))
-// }
+// val tagNib: Nibbler[Token, Option[Field]] = gaze =>
+//   gaze.peek() match
+//     case Some(Token.Field(name)) =>
+//       gaze.next()
+//       Result.Match(Some(Field(name)))
+//     case _ =>
+//       Result.NoMatch
+
+// val tagNib: Nibbler[Token, Term.TaggedFieldTerm] = gaze =>
+//   val names = ListBuffer[Field]()
+//   boundary:
+//     while !gaze.isComplete do
+//       gaze.next() match
+//         case Some(Token.Field(name)) =>
+//           names.append(Field(name))
+//           gaze.peek() match {
+//             case Some(Token.Arrow) => gaze.next() // swallow arrow, ouch!
+//             case _                 => break()
+//           }
+//         case _ => break()
+//   names.toSeq match {
+//     case Seq()                 => Result.NoMatch
+//     case Seq(field)             => Result.Match(Term.TaggedFieldTerm(field))
+//     case names => ???///Result.Match(Tag.Chain(names))
+//   }
 
 // val parameterNib: Nibbler[Token, Name] = { gaze =>
 //   gaze.next() match
@@ -178,14 +186,13 @@ val arrayNib: Nibbler[Token, Term.Array] = { gaze =>
 }
 
 val fieldNibNameOnly: Nibbler[Token, (Field, Term)] = { gaze =>
-  ???
-// val res =
-//   for name <- gaze.attempt(fieldNib)
-//   yield name
-// res match {
-//   case Result.Match(Term.FieldPath(Seq(name))) => Result.Match((name, Term.NameTerm(Seq(name))))
-//   case _                                      => Result.NoMatch
-// }
+  val res =
+    for name <- gaze.attempt(fieldNib)
+    yield name
+  res match {
+    case Result.Match(field) => Result.Match((field, Term.FieldTerm(field)))
+    case _                   => Result.NoMatch
+  }
 }
 
 val fieldNibNameValue: Nibbler[Token, (Field, Term)] = { gaze =>
@@ -203,12 +210,8 @@ val fieldNibNameValue: Nibbler[Token, (Field, Term)] = { gaze =>
 val moduleFieldNib: Nibbler[Token, (dev.ligature.wander.Field, Term)] =
   takeFirst(fieldNibNameValue, fieldNibNameOnly)
 
-val fieldPathTermNib: Nibbler[Token, Term] =
-  takeFirst(fieldPathNib, fieldNib).map(
-    _ match
-      case fieldPath: FieldPath => Term.FieldPathTerm(fieldPath)
-      case field: Field         => Term.FieldTerm(field)
-  )
+val fieldPathTermNib: Nibbler[Token, Term.FieldPathTerm] =
+  fieldPathNib.map(Term.FieldPathTerm(_))
 
 val moduleNib: Nibbler[Token, Term.Module] = { gaze =>
   val res = for
@@ -244,9 +247,10 @@ val bindingNib: Nibbler[Token, Term.Binding] = { gaze =>
   for {
     exportName <- gaze.attempt(exportNib)
     field <- gaze.attempt(fieldNib)
+    // tag <- gaze.attempt(tagNib)
     _ <- gaze.attempt(take(Token.EqualSign))
     value <- gaze.attempt(expressionNib)
-  } yield Term.Binding(TaggedField(field, Tag.Untagged), value, exportName)
+  } yield Term.Binding(field, None, value, exportName)
 }
 
 val taggedBindingNib: Nibbler[Token, Term.Binding] = { gaze =>
@@ -254,17 +258,16 @@ val taggedBindingNib: Nibbler[Token, Term.Binding] = { gaze =>
     exportName <- gaze.attempt(exportNib)
     field <- gaze.attempt(fieldNib)
     _ <- gaze.attempt(take(Token.Colon))
-    tag <- gaze.attempt(tagNib)
+    tag <- gaze.attempt(fieldPathNib)
     _ <- gaze.attempt(take(Token.EqualSign))
     value <- gaze.attempt(expressionNib)
-  } yield Term.Binding(TaggedField(field, tag), value, exportName)
+  } yield Term.Binding(field, Some(tag), value, exportName)
 }
 
 val applicationInternalNib =
   takeFirst(
     bindingNib,
     taggedBindingNib,
-    fieldTermNib,
     lambdaNib,
     groupingNib,
     stringNib,
@@ -274,14 +277,14 @@ val applicationInternalNib =
     moduleNib,
     booleanNib,
     nothingNib,
-    questionMarkTermNib
+    questionMarkTermNib,
+    fieldPathTermNib
   )
 
 val expressionNib =
   takeFirst(
     importNib,
     bindingNib,
-    fieldPathTermNib,
     taggedBindingNib,
     applicationNib,
     lambdaNib,
@@ -293,7 +296,8 @@ val expressionNib =
     moduleNib,
     booleanNib,
     nothingNib,
-    questionMarkTermNib
+    questionMarkTermNib,
+    fieldPathTermNib
   )
 
 val scriptNib = optionalSeq(repeatSep(expressionNib, Token.Comma))

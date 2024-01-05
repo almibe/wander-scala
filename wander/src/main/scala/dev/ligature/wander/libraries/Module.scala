@@ -5,5 +5,10 @@
 package dev.ligature.wander.libraries
 
 import dev.ligature.wander.Environment
+import dev.ligature.wander.WanderValue
 
-val recordLibrary = Seq()
+//Yo dawg, I heard you like Modules.
+val moduleModule = WanderValue.Module(
+  Map(
+  )
+)

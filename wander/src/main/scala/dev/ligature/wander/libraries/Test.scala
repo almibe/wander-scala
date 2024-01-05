@@ -11,7 +11,9 @@ import dev.ligature.wander.Tag
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.WanderError
 
-val testingLibrary: Seq[HostFunction] = Seq(
+val testingModule = WanderValue.Module(
+  Map(
+  )
   // HostFunction(
   //   Name("Test.assertEq"),
   //   "Check if two values are equal and fail if they are not.",

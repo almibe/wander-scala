@@ -18,6 +18,7 @@ enum WanderValue:
   case Array(values: Seq[WanderValue])
   case Module(values: Map[Field, WanderValue])
   case Function(function: dev.ligature.wander.Function)
+  case Property(property: HostProperty)
   case QuestionMark
 
 case class Field(name: String)
@@ -129,4 +130,5 @@ def printWanderValue(value: WanderValue, interpolation: Boolean = false): String
       "{" + values
         .map((field, value) => field.name + " = " + printWanderValue(value, interpolation))
         .mkString(", ") + "}"
+    case WanderValue.Property(property) => "[Property]"
   }

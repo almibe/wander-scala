@@ -18,7 +18,7 @@ enum Expression:
   case BooleanValue(value: Boolean)
   case Nothing
   case Array(value: Seq[Expression])
-  case Binding(name: TaggedField, value: Expression, exportName: Boolean)
+  case Binding(name: Field, tag: Option[FieldPath], value: Expression, exportName: Boolean)
   case Module(values: Seq[(dev.ligature.wander.Field, Expression)])
   case Lambda(parameters: Seq[Field], body: Expression)
   case WhenExpression(conditionals: Seq[(Expression, Expression)])
@@ -43,7 +43,7 @@ def load(
         case Right((value, environment)) =>
           currentEnvironemnt = environment
           expression match
-            case Expression.Binding(TaggedField(field, tag), expression, true) =>
+            case Expression.Binding(field, tag, expression, true) =>
               eval(expression, currentEnvironemnt) match
                 case Left(err) => Left(err)
                 case Right((value, _)) =>
@@ -65,10 +65,11 @@ def eval(
     case Expression.StringValue(value, interpolated) =>
       if interpolated then interpolateString(value, environment)
       else Right((WanderValue.String(value), environment))
-    case Expression.Array(value)                     => handleArray(value, environment)
-    case Expression.FieldExpression(field)           => readField(field, environment)
-    case Expression.FieldPathExpression(fieldPath)   => readFieldPath(fieldPath, environment)
-    case Expression.Binding(name, value, exportName) => handleBinding(name, value, environment)
+    case Expression.Array(value)                   => handleArray(value, environment)
+    case Expression.FieldExpression(field)         => readField(field, environment)
+    case Expression.FieldPathExpression(fieldPath) => readFieldPath(fieldPath, environment)
+    case Expression.Binding(name, tag, value, exportName) =>
+      handleBinding(name, tag, value, environment)
     case lambda: Expression.Lambda => Right((WanderValue.Function(Lambda(lambda)), environment))
     case Expression.WhenExpression(conditionals) =>
       handleWhenExpression(conditionals, environment)
@@ -92,16 +93,24 @@ def readField(
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   environment.read(field) match
-    case Right(value) => Right((value, environment))
-    case Left(err)    => Left(err)
+    case Left(err) => Left(err)
+    case Right(value) =>
+      value match
+        case WanderValue.Property(property) =>
+          property.read(environment)
+        case _ => Right((value, environment))
 
 def readFieldPath(
     fieldPath: FieldPath,
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   environment.read(fieldPath) match
-    case Right(value) => Right((value, environment))
-    case Left(err)    => Left(err)
+    case Left(err) => Left(err)
+    case Right(value) =>
+      value match
+        case WanderValue.Property(property) =>
+          property.read(environment)
+        case _ => Right((value, environment))
 
 def interpolateString(
     value: String,
@@ -124,8 +133,6 @@ def interpolateString(
             contents match
               case _: Unit => Left(WanderError("Should never reach"))
               case contents: String =>
-                println(s"!contents = $contents")
-                println(s"!environemnt = ${environment.scopes}")
                 run(contents, environment) match
                   case Left(err) =>
                     Left(err)
@@ -169,14 +176,16 @@ def handleModule(
     Right((WanderValue.Module(results.toMap), environment))
 
 def handleBinding(
-    name: TaggedField,
+    field: Field,
+    tag: Option[FieldPath],
     value: Expression,
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   eval(value, environment) match {
     case Left(err) => Left(err)
     case Right(value) =>
-      environment.bindVariable(name, value._1) match {
+      environment
+        .bindVariable(TaggedField(field, Tag.Untagged), value._1) match { // TODO tag is wrong here
         case Left(err) => Left(err)
         case Right(environment) =>
           Right((value._1, environment))

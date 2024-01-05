@@ -17,7 +17,6 @@ class BindingSuite extends munit.FunSuite {
       ,
       expected
     )
-
   test("basic binding") {
     val script = "x = 5"
     val result = WanderValue.Int(5)

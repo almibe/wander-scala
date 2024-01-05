@@ -9,8 +9,8 @@ import dev.ligature.wander.TaggedField
 import dev.ligature.wander.Tag
 import dev.ligature.wander.WanderValue
 
-val stringLibrary =
-  Seq(
+val stringModule = WanderValue.Module(
+  Map(
     // HostFunction(
     //   Name("String.cat"),
     //   "Concat two Strings.",
@@ -25,3 +25,4 @@ val stringLibrary =
     //         Right((WanderValue.String(left + right), environment))
     // )
   )
+)

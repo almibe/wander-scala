@@ -20,16 +20,16 @@ import scala.util.Success
   */
 def std(): Environment =
   Environment()
-  // .addHostProperties(coreProperties)
-  // .addHostFunctions(arrayLibrary)
-  // .addHostFunctions(boolLibrary)
-  // .addHostFunctions(boolLibrary)
-  // .addHostFunctions(coreLibrary)
-  // .addHostFunctions(intLibrary)
-  // .addHostFunctions(recordLibrary)
-  // .addHostFunctions(shapeLibrary)
-  // .addHostFunctions(stringLibrary)
-  // .addHostFunctions(testingLibrary)
+    .bindVariable(Field("Array"), arrayModule)
+    .bindVariable(Field("Bool"), boolModule)
+    .bindVariable(Field("Bytes"), bytesModel)
+    .bindVariable(Field("Core"), coreModule)
+    .bindVariable(Field("Http"), httpModule)
+    .bindVariable(Field("Int"), intModule)
+    .bindVariable(Field("Module"), moduleModule)
+    .bindVariable(Field("Shape"), shapeModule)
+    .bindVariable(Field("String"), stringModule)
+    .bindVariable(Field("Test"), testingModule)
 
 /** Load Wander modules from the path provided using the environment provided as a base.
   */

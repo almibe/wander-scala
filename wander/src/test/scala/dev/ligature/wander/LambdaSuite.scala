@@ -21,13 +21,13 @@ class LambdaSuite extends munit.FunSuite {
   //   (args, environment) => Right((WanderValue.Int(5), environment))
   // )
 
-  // val environment = std().addHostFunctions(Seq(testFunction))
+  val environment = std() // .addHostFunctions(Seq(testFunction))
 
-  // def check(script: String, expected: WanderValue): Unit =
-  //   assertEquals(
-  //     run(script, environment).getOrElse(???)._1,
-  //     expected
-  //   )
+  def check(script: String, expected: WanderValue): Unit =
+    assertEquals(
+      run(script, environment).getOrElse(???)._1,
+      expected
+    )
 
   // test("partially apply a host function") {
   //   val script = "test 1"

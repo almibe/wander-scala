@@ -5,6 +5,9 @@
 package dev.ligature.wander.libraries
 
 import dev.ligature.wander.Environment
+import dev.ligature.wander.WanderValue
 
-def bindHttpLibrary(environment: Environment) =
-  ???
+val httpModule = WanderValue.Module(
+  Map(
+  )
+)

@@ -5,5 +5,26 @@
 package dev.ligature.wander.libraries
 
 import dev.ligature.wander.Environment
+import dev.ligature.wander.WanderValue
+import dev.ligature.wander.Field
+import dev.ligature.wander.HostFunction
+import dev.ligature.wander.Tag
+import dev.ligature.wander.FieldPath
+import dev.ligature.wander.TaggedField
 
-val arrayLibrary = Seq()
+val arrayModule = WanderValue.Module(
+  Map(
+    Field("length") -> WanderValue.Function(
+      HostFunction(
+        "Get the number of elements in an Array.",
+        Seq(TaggedField(Field("array"), Tag.Untagged)),
+        Tag.Untagged,
+        (args, environment) =>
+          args match
+            case Seq(WanderValue.Array(value)) =>
+              Right((WanderValue.Int(value.length), environment))
+            case _ => ???
+      )
+    )
+  )
+)

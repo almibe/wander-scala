@@ -10,7 +10,9 @@ import dev.ligature.wander.TaggedField
 import dev.ligature.wander.Tag
 import dev.ligature.wander.WanderValue
 
-val intLibrary = Seq(
+val intModule = WanderValue.Module(
+  Map(
+  )
   // HostFunction(
   //   Name("Int.add"),
   //   "Add two Ints.",

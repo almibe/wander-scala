@@ -12,20 +12,38 @@ import dev.ligature.wander.WanderError
 import dev.ligature.wander.HostFunction
 import dev.ligature.wander.TaggedField
 import dev.ligature.wander.Tag
+import dev.ligature.wander.Field
 
-//def Name(name: String) = dev.ligature.wander.Name.from(name).getOrElse(???)
-
-val boolLibrary = Seq(
-  // HostFunction(
-  //   Name("Bool.not"),
-  //   "Perform a not operation on a Bool value.",
-  //   Seq(TaggedField(Name("value"), Tag.Single(Name("Core.Bool")))),
-  //   Tag.Single(Name("Core.Bool")),
-  //   (args, environment) =>
-  //     args match
-  //       case Seq(WanderValue.Bool(value)) => Right((WanderValue.Bool(!value), environment))
-  //       case _                            => ???
-  // )
+val boolModule = WanderValue.Module(
+  Map(
+    Field("not") -> WanderValue.Function(
+      HostFunction(
+        "Perform a not operation on a Bool value.",
+        Seq(TaggedField(Field("value"), Tag.Untagged)),
+        Tag.Untagged,
+        (args, environment) =>
+          args match
+            case Seq(WanderValue.Bool(value)) => Right((WanderValue.Bool(!value), environment))
+            case _                            => ???
+      )
+    ),
+    Field("and") -> WanderValue.Function(
+      HostFunction(
+        "",
+        Seq(TaggedField(Field("left"), Tag.Untagged), TaggedField(Field("right"), Tag.Untagged)),
+        Tag.Untagged,
+        (args, environment) => ???
+      )
+    ),
+    Field("or") -> WanderValue.Function(
+      HostFunction(
+        "",
+        Seq(TaggedField(Field("left"), Tag.Untagged), TaggedField(Field("right"), Tag.Untagged)),
+        Tag.Untagged,
+        (args, environment) => ???
+      )
+    )
+  )
 )
 
 //   stdLib = stdLib

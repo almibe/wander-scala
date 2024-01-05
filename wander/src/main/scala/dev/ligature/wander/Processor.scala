@@ -33,16 +33,16 @@ def process(terms: Seq[Term]): Either[WanderError, Seq[Expression]] =
 
 def process(term: Term): Either[WanderError, Expression] =
   term match {
-    case Term.Import(name)                      => Right(Expression.Import(name))
-    case Term.NothingLiteral                    => Right(Expression.Nothing)
-    case Term.Pipe                              => ???
-    case Term.QuestionMark                      => Right(Expression.QuestionMark)
-    case Term.Array(terms)                      => processArray(terms)
-    case Term.BooleanLiteral(value)             => Right(Expression.BooleanValue(value))
-    case Term.Binding(name, value, exportName)  => processBinding(name, value, exportName)
-    case Term.IntegerLiteral(value)             => Right(Expression.IntegerValue(value))
-    case Term.FieldPathTerm(value)              => Right(Expression.FieldPathExpression(value))
-    case Term.FieldTerm(value)                  => Right(Expression.FieldExpression(value))
+    case Term.Import(name)                          => Right(Expression.Import(name))
+    case Term.NothingLiteral                        => Right(Expression.Nothing)
+    case Term.Pipe                                  => ???
+    case Term.QuestionMark                          => Right(Expression.QuestionMark)
+    case Term.Array(terms)                          => processArray(terms)
+    case Term.BooleanLiteral(value)                 => Right(Expression.BooleanValue(value))
+    case Term.Binding(name, tag, value, exportName) => processBinding(name, tag, value, exportName)
+    case Term.IntegerLiteral(value)                 => Right(Expression.IntegerValue(value))
+    case Term.FieldPathTerm(value)                  => Right(Expression.FieldPathExpression(value))
+    case Term.FieldTerm(value)                      => Right(Expression.FieldExpression(value))
     case Term.StringLiteral(value, interpolate) => Right(Expression.StringValue(value, interpolate))
     case Term.Lambda(parameters, body)          => processLambda(parameters, body)
     case Term.Grouping(terms)                   => processGrouping(terms)
@@ -111,13 +111,14 @@ def processLambda(parameters: Seq[Field], body: Term): Either[WanderError, Expre
   }
 
 def processBinding(
-    name: TaggedField,
+    name: Field,
+    tag: Option[FieldPath],
     value: Term,
     exportName: Boolean
 ): Either[WanderError, Expression.Binding] =
   process(value) match {
     case Left(err)         => ???
-    case Right(expression) => Right(Expression.Binding(name, expression, exportName))
+    case Right(expression) => Right(Expression.Binding(name, tag, expression, exportName))
   }
 
 def processArray(terms: Seq[Term]): Either[WanderError, Expression.Array] = {

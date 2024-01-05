@@ -5,5 +5,9 @@
 package dev.ligature.wander.libraries
 
 import dev.ligature.wander.Environment
+import dev.ligature.wander.WanderValue
 
-val shapeLibrary = Seq()
+val shapeModule = WanderValue.Module(
+  Map(
+  )
+)
