@@ -46,7 +46,8 @@ def loadFromPath(path: Path, environment: Environment): Either[WanderError, Envi
           !f.getFileName().toString().endsWith(".test.wander")
     )
     .foreach { file =>
-      val modname = file.toFile().getName().split('.').head
+      val modname = Field(file.toFile().getName().split('.').head)
+      val module = scala.collection.mutable.HashMap[Field, WanderValue]()
       Using(Source.fromFile(file.toFile()))(_.mkString) match
         case Failure(exception) =>
           Left(WanderError(s"Error reading $file\n${exception.getMessage()}"))
@@ -55,11 +56,11 @@ def loadFromPath(path: Path, environment: Environment): Either[WanderError, Envi
             case Left(err) => Left(err)
             case Right(values) =>
               values.foreach((name, value) =>
-                val fullName = Field(modname + "." + name)
-                resultEnvironment =
-                  resultEnvironment.bindVariable(TaggedField(fullName, Tag.Untagged), value) match
-                    case Left(value)  => ???
-                    case Right(value) => value
+                module.put(name, value)
               )
+      resultEnvironment =
+        resultEnvironment.bindVariable(TaggedField(modname, Tag.Untagged), WanderValue.Module(module.toMap)) match
+          case Left(value)  => ???
+          case Right(value) => value
     }
   Right(resultEnvironment)

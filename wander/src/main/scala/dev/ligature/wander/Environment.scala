@@ -92,40 +92,16 @@ case class Environment(
       )
       result
 
-  def importModule(name: FieldPath): Either[WanderError, Environment] =
-    ???
-    // var currentEnvironemnt = this
-    // this.scopes.foreach { scope =>
-    //     scope
-    //     .filter { (n, _) => n.startsWith(name.names.head) }
-    //     .foreach( (n, v) =>
-    //       val relName = n.drop(name.length)
-    //       currentEnvironemnt = currentEnvironemnt.bindVariable(TaggedField(relName, Tag.Untagged), v._2).getOrElse(???)
-    //     )
-    // }
-    // this.functions
-    //   .filter { f => f.name.startsWith(name) }
-    //   .foreach(f =>
-    //     val relName = f.name.drop(name.length)
-    //     currentEnvironemnt = currentEnvironemnt.bindVariable(TaggedField(relName, Tag.Untagged), WanderValue.Function(f)).getOrElse(???)
-    //   )
-    // //TODO handle properties
-    // Right(currentEnvironemnt)
-
-//   def addHostFunctions(functions: Seq[(Name, HostFunction)]): Environment =
-//     var currentEnvironemnt = this
-//     functions.foreach(f =>
-//       currentEnvironemnt = currentEnvironemnt
-//         .bindVariable(TaggedField(f._1, Tag.Untagged), WanderValue.Function(f._2))
-//         .getOrElse(???)
-//     )
-//     currentEnvironemnt.copy(functions = currentEnvironemnt.functions ++ functions)
-
-//   def addHostProperties(properties: Seq[HostProperty]): Environment =
-//     var currentEnvironemnt = this
-// //    properties.foreach(p => currentEnvironemnt = currentEnvironemnt.bindVariable(TaggedField(p.name, p.resultTag), p.))
-//     this.copy(properties = this.properties ++ properties)
-
+  def importModule(fieldPath: FieldPath): Either[WanderError, Environment] =
+    var currentEnvironemnt = this
+    this.read(fieldPath) match
+      case Left(value) => Left(value)
+      case Right(WanderValue.Module(module)) =>
+        module.foreach((k, v) =>
+          currentEnvironemnt = currentEnvironemnt.bindVariable(k, v)
+        )
+      case _ => ???
+    Right(currentEnvironemnt)
   def checkTag(tag: Tag, value: WanderValue): Either[WanderError, WanderValue] =
     tag match {
       case Tag.Untagged    => Right(value)

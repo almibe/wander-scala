@@ -11,26 +11,26 @@ import dev.ligature.wander.TaggedField
 import dev.ligature.wander.Tag
 import dev.ligature.wander.WanderError
 import dev.ligature.wander.HostProperty
+import dev.ligature.wander.Field
 
 val coreModule = WanderValue.Module(
   Map(
+    Field("eq") -> WanderValue.Function(HostFunction(
+      "Check if two values are equal.",
+      Seq(
+        TaggedField(Field("left"), Tag.Untagged),
+        TaggedField(Field("right"), Tag.Untagged)
+      ),
+      Tag.Untagged,
+      (args: Seq[WanderValue], environment: Environment) =>
+        args match
+          case Seq(first, second) =>
+            val res = first.asInstanceOf[WanderValue] == second.asInstanceOf[WanderValue]
+            Right((WanderValue.Bool(res), environment))
+          case _ => ???
+    ))
   )
 )
-// HostFunction(
-//   Name("Core.eq"),
-//   "Check if two values are equal.",
-//   Seq(
-//     TaggedField(Name("left"), Tag.Single(Name("Core.Any"))),
-//     TaggedField(Name("right"), Tag.Single(Name("Core.Any")))
-//   ),
-//   Tag.Single(Name("Core.Bool")),
-//   (args: Seq[WanderValue], environment: Environment) =>
-//     args match
-//       case Seq(first, second) =>
-//         val res = first.asInstanceOf[WanderValue] == second.asInstanceOf[WanderValue]
-//         Right((WanderValue.Bool(res), environment))
-//       case _ => ???
-// ),
 // HostFunction(
 //   Name("Core.Any"),
 //   "Checks if a value is an Any.",
