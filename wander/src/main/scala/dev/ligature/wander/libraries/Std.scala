@@ -20,16 +20,16 @@ import scala.util.Success
   */
 def std(): Environment =
   Environment()
-    .addHostProperties(coreProperties)
-    .addHostFunctions(arrayLibrary)
-    .addHostFunctions(boolLibrary)
-    .addHostFunctions(boolLibrary)
-    .addHostFunctions(coreLibrary)
-    .addHostFunctions(intLibrary)
-    .addHostFunctions(recordLibrary)
-    .addHostFunctions(shapeLibrary)
-    .addHostFunctions(stringLibrary)
-    .addHostFunctions(testingLibrary)
+  // .addHostProperties(coreProperties)
+  // .addHostFunctions(arrayLibrary)
+  // .addHostFunctions(boolLibrary)
+  // .addHostFunctions(boolLibrary)
+  // .addHostFunctions(coreLibrary)
+  // .addHostFunctions(intLibrary)
+  // .addHostFunctions(recordLibrary)
+  // .addHostFunctions(shapeLibrary)
+  // .addHostFunctions(stringLibrary)
+  // .addHostFunctions(testingLibrary)
 
 /** Load Wander modules from the path provided using the environment provided as a base.
   */
@@ -55,9 +55,9 @@ def loadFromPath(path: Path, environment: Environment): Either[WanderError, Envi
             case Left(err) => Left(err)
             case Right(values) =>
               values.foreach((name, value) =>
-                val fullName = Name.from(modname + "." + name).getOrElse(???)
+                val fullName = Field(modname + "." + name)
                 resultEnvironment =
-                  resultEnvironment.bindVariable(TaggedName(fullName, Tag.Untagged), value) match
+                  resultEnvironment.bindVariable(TaggedField(fullName, Tag.Untagged), value) match
                     case Left(value)  => ???
                     case Right(value) => value
               )

@@ -6,23 +6,23 @@ package dev.ligature.wander.libraries
 
 import javax.lang.model.`type`.ErrorType
 import dev.ligature.wander.HostFunction
-import dev.ligature.wander.TaggedName
+import dev.ligature.wander.TaggedField
 import dev.ligature.wander.Tag
 import dev.ligature.wander.WanderValue
 
 val intLibrary = Seq(
-  HostFunction(
-    Name("Int.add"),
-    "Add two Ints.",
-    Seq(
-      TaggedName(Name("left"), Tag.Single(Name("Core.Int"))),
-      TaggedName(Name("right"), Tag.Single(Name("Core.Int")))
-    ),
-    Tag.Single(Name("Core.Int")),
-    (args, environment) =>
-      args match
-        case Seq(WanderValue.Int(left), WanderValue.Int(right)) =>
-          Right((WanderValue.Int(left + right), environment))
-        case _ => ???
-  )
+  // HostFunction(
+  //   Name("Int.add"),
+  //   "Add two Ints.",
+  //   Seq(
+  //     TaggedField(Name("left"), Tag.Single(Name("Core.Int"))),
+  //     TaggedField(Name("right"), Tag.Single(Name("Core.Int")))
+  //   ),
+  //   Tag.Single(Name("Core.Int")),
+  //   (args, environment) =>
+  //     args match
+  //       case Seq(WanderValue.Int(left), WanderValue.Int(right)) =>
+  //         Right((WanderValue.Int(left + right), environment))
+  //       case _ => ???
+  // )
 )

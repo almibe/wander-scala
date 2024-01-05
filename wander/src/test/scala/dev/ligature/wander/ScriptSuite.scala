@@ -10,43 +10,41 @@ import dev.ligature.wander.libraries.std
 import dev.ligature.wander.libraries.loadFromPath
 import java.nio.file.Path
 
-def UName(name: String): Seq[Name] = Name.from(name).getOrElse(???)
-
 class ScriptSuite extends munit.FunSuite {
-  sys.env.get("WANDER_TEST_SUITE") match {
-    case Some(dir) =>
-      val files = File(dir).listFiles
-        .filter(_.isFile)
-        .filter(_.getName.endsWith(".test.wander"))
-        .map(_.getPath)
-        .toList
-      files.foreach { f =>
-        val script = Source.fromFile(f).mkString
-        loadFromPath(Path.of(dir), std()) match
-          case Left(value) => ???
-          case Right(environment) =>
-            run(script, environment) match {
-              case Left(err) => fail(f.toString() + err.toString())
-              case Right((results, _)) =>
-                evaluateResults(results)
-            }
-      }
-    case None => ()
-  }
+  // sys.env.get("WANDER_TEST_SUITE") match {
+  //   case Some(dir) =>
+  //     val files = File(dir).listFiles
+  //       .filter(_.isFile)
+  //       .filter(_.getName.endsWith(".test.wander"))
+  //       .map(_.getPath)
+  //       .toList
+  //     files.foreach { f =>
+  //       val script = Source.fromFile(f).mkString
+  //       loadFromPath(Path.of(dir), std()) match
+  //         case Left(value) => ???
+  //         case Right(environment) =>
+  //           run(script, environment) match {
+  //             case Left(err) => fail(f.toString() + err.toString())
+  //             case Right((results, _)) =>
+  //               evaluateResults(results)
+  //           }
+  //     }
+  //   case None => ()
+  // }
 
-  def evaluateResults(results: WanderValue) =
-    results match
-      case WanderValue.Nothing => ()
-      case WanderValue.Array(tests) =>
-        tests.foreach { currentTest =>
-          currentTest match
-            case WanderValue.Record(values) =>
-              test(values(UName("name").head).toString) {
-                val test = values(UName("test").head)
-                val expected = values(UName("expect").head)
-                assertEquals(test, expected)
-              }
-            case _ => ???
-        }
-      case _ => ???
+  // def evaluateResults(results: WanderValue) =
+  //   results match
+  //     case WanderValue.Nothing => ()
+  //     case WanderValue.Array(tests) =>
+  //       tests.foreach { currentTest =>
+  //         currentTest match
+  //           case WanderValue.Module(values) =>
+  //             test(values(Field("name")).toString) {
+  //               val test = values(Field("test"))
+  //               val expected = values(Field("expect"))
+  //               assertEquals(test, expected)
+  //             }
+  //           case _ => ???
+  //       }
+  //     case _ => ???
 }

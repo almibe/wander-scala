@@ -8,25 +8,24 @@ import dev.ligature.wander.Environment
 import dev.ligature.wander.Token
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.Term
-import dev.ligature.wander.Name
 import dev.ligature.wander.WanderError
 import dev.ligature.wander.HostFunction
-import dev.ligature.wander.TaggedName
+import dev.ligature.wander.TaggedField
 import dev.ligature.wander.Tag
 
-def Name(name: String) = dev.ligature.wander.Name.from(name).getOrElse(???)
+//def Name(name: String) = dev.ligature.wander.Name.from(name).getOrElse(???)
 
 val boolLibrary = Seq(
-  HostFunction(
-    Name("Bool.not"),
-    "Perform a not operation on a Bool value.",
-    Seq(TaggedName(Name("value"), Tag.Single(Name("Core.Bool")))),
-    Tag.Single(Name("Core.Bool")),
-    (args, environment) =>
-      args match
-        case Seq(WanderValue.Bool(value)) => Right((WanderValue.Bool(!value), environment))
-        case _                            => ???
-  )
+  // HostFunction(
+  //   Name("Bool.not"),
+  //   "Perform a not operation on a Bool value.",
+  //   Seq(TaggedField(Name("value"), Tag.Single(Name("Core.Bool")))),
+  //   Tag.Single(Name("Core.Bool")),
+  //   (args, environment) =>
+  //     args match
+  //       case Seq(WanderValue.Bool(value)) => Right((WanderValue.Bool(!value), environment))
+  //       case _                            => ???
+  // )
 )
 
 //   stdLib = stdLib

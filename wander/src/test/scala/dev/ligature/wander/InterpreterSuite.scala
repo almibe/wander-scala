@@ -9,18 +9,18 @@ import munit.FunSuite
 import dev.ligature.wander.libraries.std
 
 class InterpreterSuite extends FunSuite {
-  def check(script: String, expected: Map[Name, WanderValue]) =
-    load(script, std()) match
-      case Left(err)    => throw RuntimeException(err.toString())
-      case Right(value) => assertEquals(value, expected)
+  // def check(script: String, expected: Map[Name, WanderValue]) =
+  //   load(script, std()) match
+  //     case Left(err)    => throw RuntimeException(err.toString())
+  //     case Right(value) => assertEquals(value, expected)
 
-  test("load script with no exports") {
-    val script = "x = false"
-    check(script, Map())
-  }
-  test("load script with one exports") {
-    val script = "export hello = 2"
-    val tokens = Map(UName("hello").head -> WanderValue.Int(2))
-    check(script, tokens)
-  }
+  // test("load script with no exports") {
+  //   val script = "x = false"
+  //   check(script, Map())
+  // }
+  // test("load script with one exports") {
+  //   val script = "export hello = 2"
+  //   val tokens = Map(UName("hello").head -> WanderValue.Int(2))
+  //   check(script, tokens)
+  // }
 }

@@ -16,9 +16,18 @@ enum WanderValue:
   case Bool(value: Boolean)
   case String(value: java.lang.String)
   case Array(values: Seq[WanderValue])
-  case Record(values: Map[Name, WanderValue])
+  case Module(values: Map[Field, WanderValue])
   case Function(function: dev.ligature.wander.Function)
   case QuestionMark
+
+case class Field(name: String)
+case class FieldPath(parts: Seq[Field])
+case class TaggedField(field: Field, tag: Tag)
+
+enum Tag:
+  case Untagged
+  case Single(tag: Function)
+  case Chain(names: Seq[Function])
 
 trait Function:
   def call(args: Seq[WanderValue], environment: Environment): Either[WanderError, WanderValue]
@@ -38,9 +47,8 @@ case class PartialFunction(args: Seq[WanderValue], function: dev.ligature.wander
 }
 
 case class HostFunction(
-    name: Seq[Name],
     docString: String,
-    parameters: Seq[TaggedName],
+    parameters: Seq[TaggedField],
     resultTag: Tag,
     fn: (
         arguments: Seq[WanderValue],
@@ -54,7 +62,6 @@ case class HostFunction(
 }
 
 case class HostProperty(
-    name: Seq[Name],
     docString: String,
     resultTag: Tag,
     read: (
@@ -118,8 +125,8 @@ def printWanderValue(value: WanderValue, interpolation: Boolean = false): String
     case WanderValue.Function(function) => "[Function]"
     case WanderValue.Array(values) =>
       "[" + values.map(value => printWanderValue(value, interpolation)).mkString(", ") + "]"
-    case WanderValue.Record(values) =>
+    case WanderValue.Module(values) =>
       "{" + values
-        .map((name, value) => name.value + " = " + printWanderValue(value, interpolation))
+        .map((field, value) => field.name + " = " + printWanderValue(value, interpolation))
         .mkString(", ") + "}"
   }

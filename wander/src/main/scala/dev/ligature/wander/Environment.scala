@@ -10,9 +10,7 @@ import scala.util.boundary
 import scala.util.boundary.break
 
 case class Environment(
-    functions: List[HostFunction] = List(),
-    properties: List[HostProperty] = List(),
-    scopes: List[Map[Seq[Name], (Tag, WanderValue)]] = List(Map())
+    scopes: List[Map[Field, (Tag, WanderValue)]] = List(Map())
 ) {
   def eval(expressions: Seq[Expression]): Either[WanderError, (WanderValue, Environment)] = {
     var env = this
@@ -36,81 +34,92 @@ case class Environment(
 
   def newScope(): Environment =
     Environment(
-      this.functions,
-      this.properties,
       this.scopes.appended(Map())
     )
 
   def bindVariable(
-      taggedName: TaggedName,
+      taggedField: TaggedField,
       wanderValue: WanderValue
   ): Either[WanderError, Environment] =
-    this.checkTag(taggedName.tag, wanderValue) match {
+    this.checkTag(taggedField.tag, wanderValue) match {
       case Left(value) => Left(value)
       case Right(value) =>
         val currentScope = this.scopes.last
-        val newVariables = currentScope + (taggedName.name -> (taggedName.tag, wanderValue))
+        val newVariables = currentScope + (taggedField.field -> (taggedField.tag, wanderValue))
         val oldScope = this.scopes.dropRight(1)
         Right(
           Environment(
-            this.functions,
-            this.properties,
             oldScope.appended(newVariables)
           )
         )
     }
 
-  def read(name: Seq[Name]): Either[WanderError, WanderValue] = {
-    var currentScopeOffset = this.scopes.length - 1
-    while (currentScopeOffset >= 0) {
-      val currentScope = this.scopes(currentScopeOffset)
-      if (currentScope.contains(name)) {
-        return Right(currentScope(name)._2)
-      }
-      currentScopeOffset -= 1
-    }
-    // TODO remove the code below once bindings are fixed
-    // this.functions.find(_.name == name) match {
-    //   case None           => ()
-    //   case Some(function) => return Right(WanderValue.Function(function))
+  def read(field: Field): Either[WanderError, WanderValue] = ???
+  //   var currentScopeOffset = this.scopes.length - 1
+  //   while (currentScopeOffset >= 0) {
+  //     val currentScope = this.scopes(currentScopeOffset)
+  //     if (currentScope.contains(name)) {
+  //       return Right(currentScope(name)._2)
+  //     }
+  //     currentScopeOffset -= 1
+  //   }
+  //   Left(WanderError(s"Could not find ${name} in scope."))
+
+  def read(fieldPath: FieldPath): Either[WanderError, WanderValue] = ???
+  //   var currentScopeOffset = this.scopes.length - 1
+  //   while (currentScopeOffset >= 0) {
+  //     val currentScope = this.scopes(currentScopeOffset)
+  //     if (currentScope.contains(name)) {
+  //       return Right(currentScope(name)._2)
+  //     }
+  //     currentScopeOffset -= 1
+  //   }
+  //   Left(WanderError(s"Could not find ${name} in scope."))
+
+  def importModule(name: FieldPath): Either[WanderError, Environment] =
+    ???
+    // var currentEnvironemnt = this
+    // this.scopes.foreach { scope =>
+    //     scope
+    //     .filter { (n, _) => n.startsWith(name.names.head) }
+    //     .foreach( (n, v) =>
+    //       val relName = n.drop(name.length)
+    //       currentEnvironemnt = currentEnvironemnt.bindVariable(TaggedField(relName, Tag.Untagged), v._2).getOrElse(???)
+    //     )
     // }
-    this.properties.find(_.name == name) match {
-      case None                                  => ()
-      case Some(HostProperty(_, _, _, property)) => return property(this).map(value => value._1)
-    }
-    Left(WanderError(s"Could not find ${name} in scope."))
-  }
+    // this.functions
+    //   .filter { f => f.name.startsWith(name) }
+    //   .foreach(f =>
+    //     val relName = f.name.drop(name.length)
+    //     currentEnvironemnt = currentEnvironemnt.bindVariable(TaggedField(relName, Tag.Untagged), WanderValue.Function(f)).getOrElse(???)
+    //   )
+    // //TODO handle properties
+    // Right(currentEnvironemnt)
 
-  def importModule(name: Seq[Name]): Either[WanderError, Environment] =
-    this.functions
-      .filter(f => f.name.startsWith(name))
-      .foreach(f => Seq(f.name.last))
-    Right(this) // TODO wrong
+//   def addHostFunctions(functions: Seq[(Name, HostFunction)]): Environment =
+//     var currentEnvironemnt = this
+//     functions.foreach(f =>
+//       currentEnvironemnt = currentEnvironemnt
+//         .bindVariable(TaggedField(f._1, Tag.Untagged), WanderValue.Function(f._2))
+//         .getOrElse(???)
+//     )
+//     currentEnvironemnt.copy(functions = currentEnvironemnt.functions ++ functions)
 
-  def addHostFunctions(functions: Seq[HostFunction]): Environment =
-    var currentEnvironemnt = this
-    functions.foreach(f =>
-      currentEnvironemnt = currentEnvironemnt
-        .bindVariable(TaggedName(f.name, Tag.Untagged), WanderValue.Function(f))
-        .getOrElse(???)
-    )
-    currentEnvironemnt.copy(functions = currentEnvironemnt.functions ++ functions)
-
-  def addHostProperties(properties: Seq[HostProperty]): Environment =
-    var currentEnvironemnt = this
-//    properties.foreach(p => currentEnvironemnt = currentEnvironemnt.bindVariable(TaggedName(p.name, p.resultTag), p.))
-    this.copy(properties = this.properties ++ properties)
+//   def addHostProperties(properties: Seq[HostProperty]): Environment =
+//     var currentEnvironemnt = this
+// //    properties.foreach(p => currentEnvironemnt = currentEnvironemnt.bindVariable(TaggedField(p.name, p.resultTag), p.))
+//     this.copy(properties = this.properties ++ properties)
 
   def checkTag(tag: Tag, value: WanderValue): Either[WanderError, WanderValue] =
     tag match {
-      case Tag.Untagged       => Right(value)
-      case Tag.Single(tag)    => checkSingleTag(tag, value)
-      case Tag.Function(tags) => checkFunctionTag(tags, value)
+      case Tag.Untagged    => Right(value)
+      case Tag.Single(tag) => checkSingleTag(tag, value)
+      case Tag.Chain(tags) => ??? /// checkFunctionTag(tags, value)
     }
 
-  private def checkSingleTag(tag: Seq[Name], value: WanderValue): Either[WanderError, WanderValue] =
-    this.read(tag) match {
-      case Right(WanderValue.Function(hf: HostFunction)) =>
+  private def checkSingleTag(tag: Function, value: WanderValue): Either[WanderError, WanderValue] =
+    tag match {
+      case hf: HostFunction =>
         hf.fn(Seq(value), this) match {
           case Right((WanderValue.Bool(true), _)) => Right(value)
           case Right((WanderValue.Bool(false), _)) =>
@@ -118,12 +127,12 @@ case class Environment(
           case Left(err) => Left(err)
           case _         => Left(WanderError("Invalid Tag, Tag Functions must return a Bool."))
         }
-      case Right(WanderValue.Function(lambda: Lambda)) =>
+      case lambda: Lambda =>
         assert(lambda.lambda.parameters.size == 1)
         var environment = this.newScope()
-        environment = environment
-          .bindVariable(TaggedName(lambda.lambda.parameters, Tag.Untagged), value)
-          .getOrElse(???)
+        // environment = environment
+        //   .bindVariable(TaggedField(lambda.lambda.parameters.head, Tag.Untagged), value)
+        //   .getOrElse(???)
         dev.ligature.wander.eval(lambda.lambda.body, environment) match {
           case Right((WanderValue.Bool(true), _)) => Right(value)
           case Right((WanderValue.Bool(false), _)) =>
@@ -131,12 +140,11 @@ case class Environment(
           case Left(err) => Left(err)
           case _         => Left(WanderError("Invalid Tag, Tag Functions must return a Bool."))
         }
-      case Left(err) => Left(err)
-      case _         => Left(WanderError(s"${tag} was not a valid tag."))
+      case _ => Left(WanderError(s"${tag} was not a valid tag."))
     }
 
   private def checkFunctionTag(
-      tags: Seq[Seq[Name]],
+      tags: Seq[Function],
       value: WanderValue
   ): Either[WanderError, WanderValue] =
     Right(value)

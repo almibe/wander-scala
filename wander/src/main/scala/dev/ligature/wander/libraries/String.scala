@@ -5,23 +5,23 @@
 package dev.ligature.wander.libraries
 
 import dev.ligature.wander.HostFunction
-import dev.ligature.wander.TaggedName
+import dev.ligature.wander.TaggedField
 import dev.ligature.wander.Tag
 import dev.ligature.wander.WanderValue
 
 val stringLibrary =
   Seq(
-    HostFunction(
-      Name("String.cat"),
-      "Concat two Strings.",
-      Seq(
-        TaggedName(Name("left"), Tag.Single(Name("Core.String"))),
-        TaggedName(Name("right"), Tag.Single(Name("Core.String")))
-      ),
-      Tag.Single(Name("Core.String")),
-      (args, environment) =>
-        args match
-          case Seq(WanderValue.String(left), WanderValue.String(right)) =>
-            Right((WanderValue.String(left + right), environment))
-    )
+    // HostFunction(
+    //   Name("String.cat"),
+    //   "Concat two Strings.",
+    //   Seq(
+    //     TaggedField(Name("left"), Tag.Single(Name("Core.String"))),
+    //     TaggedField(Name("right"), Tag.Single(Name("Core.String")))
+    //   ),
+    //   Tag.Single(Name("Core.String")),
+    //   (args, environment) =>
+    //     args match
+    //       case Seq(WanderValue.String(left), WanderValue.String(right)) =>
+    //         Right((WanderValue.String(left + right), environment))
+    // )
   )

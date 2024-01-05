@@ -10,29 +10,30 @@ import scala.util.boundary, boundary.break
 import scala.collection.mutable
 
 enum Expression:
-  case Import(name: Seq[Name])
-  case NameExpression(value: Seq[Name])
+  case Import(name: FieldPath)
+  case FieldExpression(field: dev.ligature.wander.Field)
+  case FieldPathExpression(fieldPath: dev.ligature.wander.FieldPath)
   case IntegerValue(value: Long)
   case StringValue(value: String, interpolated: Boolean = false)
   case BooleanValue(value: Boolean)
   case Nothing
   case Array(value: Seq[Expression])
-  case Binding(name: TaggedName, value: Expression, exportName: Boolean)
-  case Record(values: Seq[(Name, Expression)])
-  case Lambda(parameters: Seq[Name], body: Expression)
+  case Binding(name: TaggedField, value: Expression, exportName: Boolean)
+  case Module(values: Seq[(dev.ligature.wander.Field, Expression)])
+  case Lambda(parameters: Seq[Field], body: Expression)
   case WhenExpression(conditionals: Seq[(Expression, Expression)])
   case Application(expressions: Seq[Expression])
   case Grouping(expressions: Seq[Expression])
   case QuestionMark
 
-/** Runs a sequences of Expressions and returns a Record that holds all of the
+/** Runs a sequences of Expressions and returns a Module that holds all of the
   * exported names.
   */
 def load(
     script: String,
     environment: Environment
-): Either[WanderError, Map[Name, WanderValue]] =
-  val result = collection.mutable.HashMap[Name, WanderValue]()
+): Either[WanderError, Map[Field, WanderValue]] =
+  val result = collection.mutable.HashMap[Field, WanderValue]()
   var currentEnvironemnt = environment
   val expressions: Seq[Expression] = introspect(script).expression.getOrElse(???)
   boundary:
@@ -42,11 +43,11 @@ def load(
         case Right((value, environment)) =>
           currentEnvironemnt = environment
           expression match
-            case Expression.Binding(TaggedName(Seq(name), tag), expression, true) =>
+            case Expression.Binding(TaggedField(field, tag), expression, true) =>
               eval(expression, currentEnvironemnt) match
                 case Left(err) => Left(err)
                 case Right((value, _)) =>
-                  result += (name -> value)
+                  result += (field -> value)
             case _ => ()
       }
     )
@@ -65,7 +66,8 @@ def eval(
       if interpolated then interpolateString(value, environment)
       else Right((WanderValue.String(value), environment))
     case Expression.Array(value)                     => handleArray(value, environment)
-    case Expression.NameExpression(name)             => readName(name, environment)
+    case Expression.FieldExpression(field)           => readField(field, environment)
+    case Expression.FieldPathExpression(fieldPath)   => readFieldPath(fieldPath, environment)
     case Expression.Binding(name, value, exportName) => handleBinding(name, value, environment)
     case lambda: Expression.Lambda => Right((WanderValue.Function(Lambda(lambda)), environment))
     case Expression.WhenExpression(conditionals) =>
@@ -73,23 +75,31 @@ def eval(
     case Expression.Grouping(expressions)    => handleGrouping(expressions, environment)
     case Expression.Application(expressions) => handleApplication(expressions, environment)
     case Expression.QuestionMark             => Right((WanderValue.QuestionMark, environment))
-    case Expression.Record(values)           => handleRecord(values, environment)
+    case Expression.Module(values)           => handleModule(values, environment)
   }
 
 def handleImport(
-    name: Seq[Name],
+    fieldPath: FieldPath,
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
-  environment.importModule(name) match
+  environment.importModule(fieldPath) match
     case Left(err) => Left(err)
     case Right(environment) =>
       Right((WanderValue.Nothing, environment))
 
-def readName(
-    name: Seq[Name],
+def readField(
+    field: Field,
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
-  environment.read(name) match
+  environment.read(field) match
+    case Right(value) => Right((value, environment))
+    case Left(err)    => Left(err)
+
+def readFieldPath(
+    fieldPath: FieldPath,
+    environment: Environment
+): Either[WanderError, (WanderValue, Environment)] =
+  environment.read(fieldPath) match
     case Right(value) => Right((value, environment))
     case Left(err)    => Left(err)
 
@@ -114,6 +124,8 @@ def interpolateString(
             contents match
               case _: Unit => Left(WanderError("Should never reach"))
               case contents: String =>
+                println(s"!contents = $contents")
+                println(s"!environemnt = ${environment.scopes}")
                 run(contents, environment) match
                   case Left(err) =>
                     Left(err)
@@ -142,22 +154,22 @@ def handleGrouping(
   else Right(res)
 }
 
-def handleRecord(
-    values: Seq[(Name, Expression)],
+def handleModule(
+    values: Seq[(Field, Expression)],
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   boundary:
-    val results = collection.mutable.HashMap[Name, WanderValue]()
+    val results = collection.mutable.HashMap[Field, WanderValue]()
     values.foreach((name, value) =>
       eval(value, environment) match {
         case Left(err)         => break(Left(err))
         case Right((value, _)) => results += name -> value
       }
     )
-    Right((WanderValue.Record(results.toMap), environment))
+    Right((WanderValue.Module(results.toMap), environment))
 
 def handleBinding(
-    name: TaggedName,
+    name: TaggedField,
     value: Expression,
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
@@ -176,8 +188,8 @@ def handleApplication(
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   expression.head match {
-    case Expression.NameExpression(name) =>
-      environment.read(name) match {
+    case Expression.FieldPathExpression(fieldPath) =>
+      environment.read(fieldPath) match {
         case Left(err) => Left(err)
         case Right(value) =>
           val arguments = expression.tail
@@ -193,8 +205,8 @@ def handleApplication(
             case WanderValue.Function(PartialFunction(args, fn: HostFunction)) =>
               callPartialHostFunction(args, fn, arguments, environment)
             case WanderValue.Array(values)  => callArray(values, arguments, environment)
-            case WanderValue.Record(values) => callRecord(values, arguments, environment)
-            case _                          => Left(WanderError(s"Could not call function $name."))
+            case WanderValue.Module(values) => callModule(values, arguments, environment)
+            case _                          => Left(WanderError(s"Could not call function."))
           }
       }
     case _ => ???
@@ -220,8 +232,8 @@ def callArray(
         case _ => Left(WanderError("Error attempting to index Array."))
     case _ => Left(WanderError("Error attempting to index Array."))
 
-def callRecord(
-    values: Map[Name, WanderValue],
+def callModule(
+    values: Map[Field, WanderValue],
     arguments: Seq[Expression],
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
@@ -229,19 +241,15 @@ def callRecord(
     case Seq(value: Expression) =>
       eval(value, environment) match
         case Left(err) => Left(err)
-        case Right((WanderValue.String(name), _)) =>
-          Name.from(name) match
-            case Left(err) => ???
-            case Right(Seq(name)) =>
-              if values.contains(name) then Right(values(name), environment)
-              else Left(WanderError(s"Could not read $name from Record."))
-            case _ => ???
-        case _ => Left(WanderError("Error attempting to read Record."))
-    case _ => Left(WanderError("Error attempting to read Record."))
+        case Right((WanderValue.String(fieldName), _)) =>
+          if values.contains(Field(fieldName)) then Right(values(Field(fieldName)), environment)
+          else Left(WanderError(s"Could not read $fieldName from Module."))
+        case _ => Left(WanderError("Error attempting to read Module."))
+    case _ => Left(WanderError("Error attempting to read Module."))
 
 def callLambda(
     arguments: Seq[Expression],
-    parameters: Seq[Name],
+    parameters: Seq[Field],
     body: Expression,
     environment: Environment
 ) =
@@ -251,7 +259,7 @@ def callLambda(
       val argument = eval(arguments(index), environment) match {
         case Left(value) => ???
         case Right(value) =>
-          fnScope.bindVariable(TaggedName(Seq(param), Tag.Untagged), value._1) match {
+          fnScope.bindVariable(TaggedField(param, Tag.Untagged), value._1) match {
             case Left(err)    => ???
             case Right(value) => fnScope = value
           }
@@ -280,7 +288,7 @@ def callLambda(
 def callPartialLambda(
     values: Seq[WanderValue],
     arguments: Seq[Expression],
-    parameters: Seq[Name],
+    parameters: Seq[Field],
     body: Expression,
     environment: Environment
 ) =
@@ -292,7 +300,7 @@ def callPartialLambda(
       val argument = eval(arg, environment) match {
         case Left(value) => ???
         case Right(value) =>
-          fnScope.bindVariable(TaggedName(Seq(param), Tag.Untagged), value._1) match {
+          fnScope.bindVariable(TaggedField(param, Tag.Untagged), value._1) match {
             case Left(err)    => ???
             case Right(value) => fnScope = value
           }

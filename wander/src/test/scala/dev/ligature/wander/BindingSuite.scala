@@ -9,20 +9,28 @@ import dev.ligature.wander.WanderValue
 import dev.ligature.wander.libraries.std
 
 class LetSuite extends munit.FunSuite {
-  def check(script: String, expected: Either[WanderError, WanderValue]) =
+  def check(script: String, expected: WanderValue) =
     assertEquals(
-      run(script, std()).getOrElse(???)._1,
-      expected.getOrElse(???)
+      run(script, std()) match
+        case Right(value) => value._1
+        case Left(err)    => throw RuntimeException(err.toString())
+      ,
+      expected
     )
 
   test("basic binding") {
     val script = "x = 5"
-    val result = Right(WanderValue.Int(5))
+    val result = WanderValue.Int(5)
     check(script, result)
   }
   test("basic binding and reference") {
     val script = "x = 5, x"
-    val result = Right(WanderValue.Int(5))
+    val result = WanderValue.Int(5)
+    check(script, result)
+  }
+  test("read Module") {
+    val script = "rec = { x = { y = 5 } }, rec.x.y"
+    val result = WanderValue.Int(5)
     check(script, result)
   }
 }
