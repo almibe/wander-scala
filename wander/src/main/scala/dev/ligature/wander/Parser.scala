@@ -243,6 +243,17 @@ val groupingNib: Nibbler[Token, Term.Grouping] = { gaze =>
   yield Term.Grouping(decls)
 }
 
+val functionBindingNib: Nibbler[Token, Term.Binding] = { gaze =>
+  for {
+    exportName <- gaze.attempt(exportNib)
+    field <- gaze.attempt(fieldNib)
+    parameters <- gaze.attempt(repeat(fieldNib))
+    // tag <- gaze.attempt(tagNib)
+    _ <- gaze.attempt(take(Token.EqualSign))
+    body <- gaze.attempt(expressionNib)
+  } yield Term.Binding(field, None, Term.Lambda(parameters, body), exportName)
+}
+
 val bindingNib: Nibbler[Token, Term.Binding] = { gaze =>
   for {
     exportName <- gaze.attempt(exportNib)
@@ -284,6 +295,7 @@ val applicationInternalNib =
 val expressionNib =
   takeFirst(
     importNib,
+    functionBindingNib,
     bindingNib,
     taggedBindingNib,
     applicationNib,
