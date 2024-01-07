@@ -30,11 +30,6 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(input, expected)
   }
-  test("parse nothing keyword") {
-    val result = check("nothing")
-    val expected = Right(Seq(Term.NothingLiteral))
-    assertEquals(result, expected)
-  }
   test("parse Integer") {
     val result = check("-321")
     val expected = Right(Seq(Term.IntegerLiteral(-321)))
@@ -237,17 +232,6 @@ class ParserSuite extends FunSuite {
   test("parse lambda bindings syntax") {
     val result = check("id i i2 = i")
     val expected = Right(Seq(Term.Binding(Field("id"), None, Term.Lambda(Seq(Field("i"), Field("i2")), Term.FieldPathTerm(FieldPath(Seq(Field("i"))))))))
-    assertEquals(result, expected)
-  }
-  test("parse import") {
-    val result = check("import Hello")
-    val expected = Right(Seq(Term.Import(FieldPath(Seq(Field("Hello"))))))
-    assertEquals(result, expected)
-  }
-  test("parse export") {
-    val result = check("export x = 5")
-    val expected =
-      Right(Seq(Term.Binding(Field("x"), None, Term.IntegerLiteral(5), true)))
     assertEquals(result, expected)
   }
 }

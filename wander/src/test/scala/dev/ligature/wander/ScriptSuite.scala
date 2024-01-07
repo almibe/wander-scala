@@ -34,7 +34,6 @@ class ScriptSuite extends munit.FunSuite {
 
   def evaluateResults(results: WanderValue) =
     results match
-      case WanderValue.Nothing => ()
       case WanderValue.Array(tests) =>
         tests.foreach { currentTest =>
           currentTest match

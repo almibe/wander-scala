@@ -11,7 +11,6 @@ import dev.ligature.wander.libraries.std
 /** Represents a Value in the Wander language.
   */
 enum WanderValue:
-  case Nothing
   case Int(value: Long)
   case Bool(value: Boolean)
   case String(value: java.lang.String)
@@ -122,7 +121,6 @@ def printWanderValue(value: WanderValue, interpolation: Boolean = false): String
     case WanderValue.Int(value)   => value.toString()
     case WanderValue.String(value) =>
       if interpolation then value else s"\"$value\"" // TODO escape correctly
-    case WanderValue.Nothing            => "nothing"
     case WanderValue.Function(function) => "[Function]"
     case WanderValue.Array(values) =>
       "[" + values.map(value => printWanderValue(value, interpolation)).mkString(", ") + "]"

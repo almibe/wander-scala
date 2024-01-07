@@ -12,6 +12,7 @@ import dev.ligature.wander.Tag
 import dev.ligature.wander.WanderError
 import dev.ligature.wander.HostProperty
 import dev.ligature.wander.Field
+import dev.ligature.wander.FieldPath
 
 val coreModule = WanderValue.Module(
   Map(
@@ -31,6 +32,22 @@ val coreModule = WanderValue.Module(
     ))
   )
 )
+
+val importFunction = WanderValue.Function(HostFunction(
+  "",
+  Seq(TaggedField(Field("import"), Tag.Untagged)),
+  Tag.Untagged,
+  (args, environment) =>
+    args match
+      case Seq(WanderValue.String(value)) =>
+        val fieldPath = value.split('.').map(Field(_))
+        environment.importModule(FieldPath(fieldPath.toSeq)) match
+          case Left(err) => Left(err)
+          case Right(environment) =>
+            Right((WanderValue.Module(Map()), environment))
+      case x => Left(WanderError(s"Error: Unexpected value $x"))
+))
+
 // HostFunction(
 //   Name("Core.Any"),
 //   "Checks if a value is an Any.",

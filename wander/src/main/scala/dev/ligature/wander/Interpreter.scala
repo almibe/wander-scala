@@ -10,15 +10,13 @@ import scala.util.boundary, boundary.break
 import scala.collection.mutable
 
 enum Expression:
-  case Import(name: FieldPath)
   case FieldExpression(field: dev.ligature.wander.Field)
   case FieldPathExpression(fieldPath: dev.ligature.wander.FieldPath)
   case IntegerValue(value: Long)
   case StringValue(value: String, interpolated: Boolean = false)
   case BooleanValue(value: Boolean)
-  case Nothing
   case Array(value: Seq[Expression])
-  case Binding(name: Field, tag: Option[FieldPath], value: Expression, exportName: Boolean)
+  case Binding(name: Field, tag: Option[FieldPath], value: Expression)
   case Module(values: Seq[(dev.ligature.wander.Field, Expression)])
   case Lambda(parameters: Seq[Field], body: Expression)
   case WhenExpression(conditionals: Seq[(Expression, Expression)])
@@ -26,40 +24,11 @@ enum Expression:
   case Grouping(expressions: Seq[Expression])
   case QuestionMark
 
-/** Runs a sequences of Expressions and returns a Module that holds all of the
-  * exported names.
-  */
-def load(
-    script: String,
-    environment: Environment
-): Either[WanderError, Map[Field, WanderValue]] =
-  val result = collection.mutable.HashMap[Field, WanderValue]()
-  var currentEnvironemnt = environment
-  val expressions: Seq[Expression] = introspect(script).expression.getOrElse(???)
-  boundary:
-    expressions.foreach(expression =>
-      eval(expression, currentEnvironemnt) match {
-        case Left(err) => break(Left(err))
-        case Right((value, environment)) =>
-          currentEnvironemnt = environment
-          expression match
-            case Expression.Binding(field, tag, expression, true) =>
-              eval(expression, currentEnvironemnt) match
-                case Left(err) => Left(err)
-                case Right((value, _)) =>
-                  result += (field -> value)
-            case _ => ()
-      }
-    )
-  Right(result.toMap)
-
 def eval(
     expression: Expression,
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   expression match {
-    case Expression.Import(name)        => handleImport(name, environment)
-    case Expression.Nothing             => Right((WanderValue.Nothing, environment))
     case Expression.BooleanValue(value) => Right((WanderValue.Bool(value), environment))
     case Expression.IntegerValue(value) => Right((WanderValue.Int(value), environment))
     case Expression.StringValue(value, interpolated) =>
@@ -68,7 +37,7 @@ def eval(
     case Expression.Array(value)                   => handleArray(value, environment)
     case Expression.FieldExpression(field)         => readField(field, environment)
     case Expression.FieldPathExpression(fieldPath) => readFieldPath(fieldPath, environment)
-    case Expression.Binding(name, tag, value, exportName) =>
+    case Expression.Binding(name, tag, value) =>
       handleBinding(name, tag, value, environment)
     case lambda: Expression.Lambda => Right((WanderValue.Function(Lambda(lambda)), environment))
     case Expression.WhenExpression(conditionals) =>
@@ -78,15 +47,6 @@ def eval(
     case Expression.QuestionMark             => Right((WanderValue.QuestionMark, environment))
     case Expression.Module(values)           => handleModule(values, environment)
   }
-
-def handleImport(
-    fieldPath: FieldPath,
-    environment: Environment
-): Either[WanderError, (WanderValue, Environment)] =
-  environment.importModule(fieldPath) match
-    case Left(err) => Left(err)
-    case Right(environment) =>
-      Right((WanderValue.Nothing, environment))
 
 def readField(
     field: Field,
@@ -150,7 +110,7 @@ def handleGrouping(
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] = {
   var error: Option[WanderError] = None
-  var res: (WanderValue, Environment) = (WanderValue.Nothing, environment)
+  var res: (WanderValue, Environment) = (WanderValue.Module(Map()), environment)
   val itr = expressions.iterator
   while error.isEmpty && itr.hasNext do
     eval(itr.next(), res._2) match {
@@ -218,7 +178,7 @@ def handleApplication(
             case _                          => Left(WanderError(s"Could not call function."))
           }
       }
-    case _ => ???
+    case x => Left(WanderError(s"Unexpected value - $x"))
   }
 
 def callArray(
@@ -279,7 +239,7 @@ def callLambda(
     val args = ListBuffer[WanderValue]()
     arguments.zipWithIndex.foreach { (arg, index) =>
       val argument = eval(arg, environment) match {
-        case Left(value) => ???
+        case Left(value) => throw RuntimeException(s"Error - $value")
         case Right(value) =>
           args.append(value._1)
       }

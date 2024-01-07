@@ -42,17 +42,12 @@ class LiteralsSuite extends munit.FunSuite {
   }
   test("comment + nothing test") {
     val script = "--nothing   " + System.lineSeparator()
-    val result = WanderValue.Nothing
+    val result = WanderValue.Module(Map())
     check(script, result)
   }
   test("string primitives") {
     val script = "\"hello world\" "
     val result = WanderValue.String("hello world")
-    check(script, result)
-  }
-  test("nothing literal") {
-    val script = "nothing"
-    val result = WanderValue.Nothing
     check(script, result)
   }
   test("empty record literal") {

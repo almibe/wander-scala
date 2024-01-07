@@ -34,9 +34,8 @@ enum Token:
   case TaggedField(name: String, tag: String)
   case OpenBrace, CloseBrace, Colon, OpenParen, CloseParen, NewLine,
     Arrow, WideArrow, Dot, At, WhenKeyword, EqualSign, Comment,
-    OpenBracket, CloseBracket, NothingKeyword, QuestionMark,
-    EndKeyword, Period, Backtick, Hash, Lambda, Pipe, Comma,
-    ImportKeyword, ExportKeyword
+    OpenBracket, CloseBracket, QuestionMark, EndKeyword, Period,
+    Backtick, Hash, Lambda, Pipe, Comma
 
 def tokenize(input: String): Either[WanderError, Seq[Token]] = {
   val gaze = Gaze.from(input)
@@ -88,13 +87,10 @@ val nameValueNib: Nibbler[String, String] =
 //   */
 val nameTokenNib: Nibbler[String, Token] = nameValueNib.map { values =>
   values match {
-    case "import"      => Token.ImportKeyword
-    case "export"      => Token.ExportKeyword
     case "when"        => Token.WhenKeyword
     case "end"         => Token.EndKeyword
     case "true"        => Token.BooleanLiteral(true)
     case "false"       => Token.BooleanLiteral(false)
-    case "nothing"     => Token.NothingKeyword
     case value: String => Token.Field(value)
   }
 }

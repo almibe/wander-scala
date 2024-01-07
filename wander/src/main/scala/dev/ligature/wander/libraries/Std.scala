@@ -30,6 +30,7 @@ def std(): Environment =
     .bindVariable(Field("Shape"), shapeModule)
     .bindVariable(Field("String"), stringModule)
     .bindVariable(Field("Test"), testingModule)
+    .bindVariable(Field("import"), importFunction)
 
 /** Load Wander modules from the path provided using the environment provided as a base.
   */
@@ -52,12 +53,13 @@ def loadFromPath(path: Path, environment: Environment): Either[WanderError, Envi
         case Failure(exception) =>
           Left(WanderError(s"Error reading $file\n${exception.getMessage()}"))
         case Success(script) =>
-          load(script, std()) match
+          run(script, std()) match
             case Left(err) => Left(err)
-            case Right(values) =>
+            case Right((WanderValue.Module(values), _)) =>
               values.foreach((name, value) =>
                 module.put(name, value)
               )
+            case _ => ???
       resultEnvironment =
         resultEnvironment.bindVariable(TaggedField(modname, Tag.Untagged), WanderValue.Module(module.toMap)) match
           case Left(value)  => ???

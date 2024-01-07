@@ -10,16 +10,16 @@ import dev.ligature.wander.libraries.std
 
 class InterpreterSuite extends FunSuite {
   def check(script: String, expected: Map[Field, WanderValue]) =
-    load(script, std()) match
+    run(script, std()) match
       case Left(err)    => throw RuntimeException(err.toString())
-      case Right(value) => assertEquals(value, expected)
+      case Right((value, _)) => assertEquals(value, WanderValue.Module(expected))
 
   test("load script with no exports") {
-    val script = "x = false"
+    val script = "x = false, {}"
     check(script, Map())
   }
   test("load script with one exports") {
-    val script = "export hello = 2"
+    val script = "hello = 2, { hello }"
     val tokens = Map(Field("hello") -> WanderValue.Int(2))
     check(script, tokens)
   }

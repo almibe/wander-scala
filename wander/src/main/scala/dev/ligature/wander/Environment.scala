@@ -27,7 +27,7 @@ case class Environment(
         }
     (lastResult, err) match {
       case (_, err: WanderError) => Left(err)
-      case (None, _)             => Right((WanderValue.Nothing, env))
+      case (None, _)             => Right((WanderValue.Module(Map()), env))
       case (Some(value), _)      => Right((value, env))
     }
   }

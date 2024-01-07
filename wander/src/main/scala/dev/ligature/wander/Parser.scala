@@ -25,16 +25,14 @@ import scala.util.boundary
 import scala.util.boundary.break
 
 enum Term:
-  case Import(fieldPath: FieldPath)
   case FieldTerm(field: Field)
   case FieldPathTerm(fieldPath: FieldPath)
   case IntegerLiteral(value: Long)
   case StringLiteral(value: String, interpolated: Boolean = false)
   case BooleanLiteral(value: Boolean)
-  case NothingLiteral
   case QuestionMark
   case Array(value: Seq[Term])
-  case Binding(field: Field, tag: Option[FieldPath], term: Term, exportName: Boolean = false)
+  case Binding(field: Field, tag: Option[FieldPath], term: Term)
   case Module(bindings: Seq[(Field, Term)])
   case WhenExpression(conditionals: Seq[(Term, Term)])
   case Application(terms: Seq[Term])
@@ -53,7 +51,7 @@ def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
   res match {
     case Result.NoMatch =>
       if (gaze.isComplete) {
-        Right(Seq(Term.NothingLiteral))
+        Right(Seq(Term.Module(Seq())))
       } else {
         Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
@@ -63,27 +61,9 @@ def parse(script: Seq[Token]): Either[WanderError, Seq[Term]] = {
       } else {
         Left(WanderError(s"Error Parsing - No Match - Next Token: ${gaze.next()}"))
       }
-    case Result.EmptyMatch => Right(Seq(Term.NothingLiteral))
+    case Result.EmptyMatch => Right(Seq(Term.Module(Seq())))
   }
 }
-
-val exportNib: Nibbler[Token, Boolean] = gaze =>
-  gaze.attempt(optional(take(Token.ExportKeyword))) match
-    case Result.NoMatch                    => Result.Match(false)
-    case Result.EmptyMatch                 => Result.Match(false)
-    case Result.Match(Token.ExportKeyword) => Result.Match(true)
-    case _                                 => Result.Match(false)
-
-val importNib: Nibbler[Token, Term] = gaze =>
-  for {
-    _ <- gaze.attempt(take(Token.ImportKeyword))
-    fieldPath <- gaze.attempt(fieldPathNib)
-  } yield Term.Import(fieldPath) // TODO handle this body better
-
-val nothingNib: Nibbler[Token, Term] = gaze =>
-  gaze.next() match
-    case Some(Token.NothingKeyword) => Result.Match(Term.NothingLiteral)
-    case _                          => Result.NoMatch
 
 val questionMarkTermNib: Nibbler[Token, Term] = gaze =>
   gaze.next() match
@@ -245,34 +225,31 @@ val groupingNib: Nibbler[Token, Term.Grouping] = { gaze =>
 
 val functionBindingNib: Nibbler[Token, Term.Binding] = { gaze =>
   for {
-    exportName <- gaze.attempt(exportNib)
     field <- gaze.attempt(fieldNib)
     parameters <- gaze.attempt(repeat(fieldNib))
     // tag <- gaze.attempt(tagNib)
     _ <- gaze.attempt(take(Token.EqualSign))
     body <- gaze.attempt(expressionNib)
-  } yield Term.Binding(field, None, Term.Lambda(parameters, body), exportName)
+  } yield Term.Binding(field, None, Term.Lambda(parameters, body))
 }
 
 val bindingNib: Nibbler[Token, Term.Binding] = { gaze =>
   for {
-    exportName <- gaze.attempt(exportNib)
     field <- gaze.attempt(fieldNib)
     // tag <- gaze.attempt(tagNib)
     _ <- gaze.attempt(take(Token.EqualSign))
     value <- gaze.attempt(expressionNib)
-  } yield Term.Binding(field, None, value, exportName)
+  } yield Term.Binding(field, None, value)
 }
 
 val taggedBindingNib: Nibbler[Token, Term.Binding] = { gaze =>
   for {
-    exportName <- gaze.attempt(exportNib)
     field <- gaze.attempt(fieldNib)
     _ <- gaze.attempt(take(Token.Colon))
     tag <- gaze.attempt(fieldPathNib)
     _ <- gaze.attempt(take(Token.EqualSign))
     value <- gaze.attempt(expressionNib)
-  } yield Term.Binding(field, Some(tag), value, exportName)
+  } yield Term.Binding(field, Some(tag), value)
 }
 
 val applicationInternalNib =
@@ -287,14 +264,12 @@ val applicationInternalNib =
     arrayNib,
     moduleNib,
     booleanNib,
-    nothingNib,
     questionMarkTermNib,
     fieldPathTermNib
   )
 
 val expressionNib =
   takeFirst(
-    importNib,
     functionBindingNib,
     bindingNib,
     taggedBindingNib,
@@ -307,7 +282,6 @@ val expressionNib =
     arrayNib,
     moduleNib,
     booleanNib,
-    nothingNib,
     questionMarkTermNib,
     fieldPathTermNib
   )
