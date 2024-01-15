@@ -13,7 +13,7 @@ val jansiVersion        = "2.4.1"
 val scalaLoggingVersion = "3.9.4"
 val logBackVersion      = "1.2.10"
 
-lazy val gaze = crossProject(JSPlatform, JVMPlatform)
+lazy val gaze = project
   .in(file("gaze"))
   .settings(
     name := "gaze",
@@ -22,7 +22,7 @@ lazy val gaze = crossProject(JSPlatform, JVMPlatform)
   )
   .disablePlugins(RevolverPlugin)
 
-lazy val wander = crossProject(JSPlatform, JVMPlatform)
+lazy val wander = project
   .in(file("wander"))
   .settings(
     name := "wander",
@@ -34,7 +34,7 @@ lazy val wander = crossProject(JSPlatform, JVMPlatform)
   .dependsOn(gaze)
   .disablePlugins(RevolverPlugin)
 
-lazy val wanderZeroMQ = crossProject(JVMPlatform)
+lazy val wanderZeroMQ = project
   .in(file("wander-zeromq"))
   .settings(
     name := "wander-zeromq",
