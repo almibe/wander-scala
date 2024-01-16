@@ -6,6 +6,8 @@ package dev.ligature.wander.zeromq
 
 import munit.*
 import org.zeromq.{ZMQ, SocketType, ZContext}
+import dev.ligature.wander.*
+import dev.ligature.wander.libraries.*
 
 class LigatureZeroMQSuite extends FunSuite {
   val port = 4201
@@ -17,11 +19,12 @@ class LigatureZeroMQSuite extends FunSuite {
       val socket = zContext.createSocket(SocketType.REQ)
       socket.connect(s"tcp://localhost:$port")
       socket.send(request.getBytes(ZMQ.CHARSET), 0)
+      socket.setReceiveTimeOut(1000)
       val result = String(socket.recv(0), ZMQ.CHARSET)
       zContext.close()
       result
     }
-    assertEquals(result, expected)
+    assertEquals(run(result, wmdn), run(expected, wmdn))
     close.close()
   }
 

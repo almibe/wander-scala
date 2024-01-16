@@ -15,7 +15,9 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.io.File
 import dev.ligature.wander.libraries.std
+import dev.ligature.wander.*
 import com.typesafe.scalalogging.Logger
+import dev.ligature.wander.libraries.*
 
 private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
   private val zContext = ZContext()
@@ -30,13 +32,36 @@ private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
         loadFromPath(File(sys.env("WANDER_LIBS")).toPath(), std()) match
           case Left(value) => throw RuntimeException(value)
           case Right(environment) =>
-            val res = runWander(query, environment)
-            socket.send(printResult(res).getBytes(ZMQ.CHARSET), 0)
+            val request = runWander(query, wmdn)
+            request match {
+              case Left(err) => throw RuntimeException(err)
+              case Right((WanderValue.Module(request)), _) => 
+                val result = runRequest(request, std())
+                socket.send(result.getBytes(ZMQ.CHARSET), 0)
+              case _ => ???
+            }
       catch case e =>
+        socket.close()
+        zContext.close()
         e.printStackTrace()
         continue = false
 
   override def close(): Unit = zContext.close()
+}
+
+def runRequest(request: Map[Field, WanderValue], environment: Environment): String = {
+  val action = request.get(Field("action"))
+  val script = request.get(Field("script"))
+  (action, script) match {
+    case (Some(WanderValue.String("run")), Some(WanderValue.String(script))) =>
+      run(script, environment) match {
+        case Left(err) =>
+          printWanderValue(WanderValue.Module(Map((Field("error") -> WanderValue.String(err.userMessage)))))
+        case Right(value) => 
+          printWanderValue(WanderValue.Module(Map((Field("result") -> value(0)))))
+      }
+    case _ => s"No match - $action - $script"
+  }
 }
 
 def runServer(port: Int): AutoCloseable = {
