@@ -26,13 +26,13 @@ class LigatureZeroMQSuite extends FunSuite {
   }
 
   test("eval literals") {
-    val request = "true"
-    val expected = "true"
+    val request = """{ action = "run", script = "true" }"""
+    val expected = "{ result = true }"
     runTest(request, expected)
   }
   test("basic function call") {
-    val request = "Bool.not false"
-    val expected = "true"
+    val request = """{ action = "run", script = "Bool.not false" }"""
+    val expected = "{ result = true }"
     runTest(request, expected)
   }
 }
