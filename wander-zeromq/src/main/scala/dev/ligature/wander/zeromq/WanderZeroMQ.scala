@@ -38,7 +38,7 @@ private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
               case Right((WanderValue.Module(request)), _) => 
                 val result = runRequest(request, std())
                 socket.send(result.getBytes(ZMQ.CHARSET), 0)
-              case _ => ???
+              case _ => socket.send(printError("Unexpected input.").getBytes(ZMQ.CHARSET), 0)
             }
       catch case e =>
         socket.close()
@@ -64,6 +64,9 @@ def runRequest(request: Map[Field, WanderValue], environment: Environment): Stri
       printWanderValue(WanderValue.Module(Map((Field("error") -> WanderValue.String(s"No match - $action - $script")))))
   }
 }
+
+def printError(message: String): String =
+  printWanderValue(WanderValue.Module(Map((Field("error") -> WanderValue.String(message)))))
 
 def runServer(port: Int): AutoCloseable = {
   val server = WanderZServer(port)
