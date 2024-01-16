@@ -60,7 +60,8 @@ def runRequest(request: Map[Field, WanderValue], environment: Environment): Stri
         case Right(value) => 
           printWanderValue(WanderValue.Module(Map((Field("result") -> value(0)))))
       }
-    case _ => s"No match - $action - $script"
+    case _ => 
+      printWanderValue(WanderValue.Module(Map((Field("error") -> WanderValue.String(s"No match - $action - $script")))))
   }
 }
 
