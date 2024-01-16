@@ -21,18 +21,18 @@ class ScriptSuite extends munit.FunSuite {
       files.foreach { f =>
         val script = Source.fromFile(f).mkString
         loadFromPath(Path.of(dir), std()) match
-          case Left(value) => ???
+          case Left(value) => throw RuntimeException(value)
           case Right(environment) =>
             run(script, environment) match {
               case Left(err) => fail(f.toString() + err.toString())
               case Right((results, _)) =>
-                evaluateResults(results)
+                evaluateResults(results, f)
             }
       }
     case None => ()
   }
 
-  def evaluateResults(results: WanderValue) =
+  def evaluateResults(results: WanderValue, fileName: String) =
     results match
       case WanderValue.Array(tests) =>
         tests.foreach { currentTest =>
@@ -45,5 +45,5 @@ class ScriptSuite extends munit.FunSuite {
               }
             case _ => ???
         }
-      case _ => ???
+      case _ => throw RuntimeException(s"In $fileName -- Expected result to be array got ${results}")
 }

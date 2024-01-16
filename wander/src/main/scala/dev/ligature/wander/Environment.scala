@@ -94,14 +94,16 @@ case class Environment(
 
   def importModule(fieldPath: FieldPath): Either[WanderError, Environment] =
     var currentEnvironemnt = this
-    this.read(fieldPath) match
-      case Left(value) => Left(value)
-      case Right(WanderValue.Module(module)) =>
-        module.foreach((k, v) =>
-          currentEnvironemnt = currentEnvironemnt.bindVariable(k, v)
-        )
-      case _ => ???
+    boundary:
+      this.read(fieldPath) match
+        case Left(value) => break(Left(value))
+        case Right(WanderValue.Module(module)) =>
+          module.foreach((k, v) =>
+            currentEnvironemnt = currentEnvironemnt.bindVariable(k, v)
+          )
+        case _ => ???
     Right(currentEnvironemnt)
+
   def checkTag(tag: Tag, value: WanderValue): Either[WanderError, WanderValue] =
     tag match {
       case Tag.Untagged    => Right(value)

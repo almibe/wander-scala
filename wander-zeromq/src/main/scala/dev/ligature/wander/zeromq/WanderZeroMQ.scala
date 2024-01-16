@@ -28,7 +28,7 @@ private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
       try
         val query = String(socket.recv(0), ZMQ.CHARSET) // blocks waiting for a request
         loadFromPath(File(sys.env("WANDER_LIBS")).toPath(), std()) match
-          case Left(value) => ???
+          case Left(value) => throw RuntimeException(value)
           case Right(environment) =>
             val res = runWander(query, environment)
             socket.send(printResult(res).getBytes(ZMQ.CHARSET), 0)
