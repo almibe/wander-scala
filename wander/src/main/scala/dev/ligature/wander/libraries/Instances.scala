@@ -18,6 +18,11 @@ import scala.util.Success
 import scala.util.boundary
 import scala.util.boundary.break
 
+/**
+ * A named instance of an empty Environment used when parsing wmdn.
+ */
+val wmdn: Environment = Environment()
+
 /** Create the "default" environment for working with Wander.
   */
 def std(): Environment =
