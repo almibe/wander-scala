@@ -40,6 +40,12 @@ class ParserSuite extends FunSuite {
     val expected = Right(Seq(Term.StringLiteral("hello")))
     assertEquals(result, expected)
   }
+  test("parse String with quotes") {
+    val result = check("\"\\\"hello\\\"\"")
+    val expected = Right(Seq(Term.StringLiteral("\"hello\"")))
+    assertEquals(result, expected)
+  }
+
   test("parse interpolated String") {
     val result = check("i\"hello $(UName)\"")
     val expected = Right(Seq(Term.StringLiteral("hello $(UName)", true)))

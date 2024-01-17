@@ -213,12 +213,12 @@ object LigNibblers {
         } else if (c == "\"") {
           complete = true
         } else if (c == "\\") {
-          sb.append(c)
           gaze.next() match {
             case None => fail = true
             case Some(c) =>
               c match {
-                case "\\" | "\"" | "b" | "f" | "n" | "r" | "t" => sb.append(c)
+                case "\\" | "\"" => sb.append(c)
+                case "b" | "f" | "n" | "r" | "t" => ???//sb.append("\\"); sb.append(c)
                 case "u" =>
                   sb.append(c)
                   val res = gaze.attempt(hexNibbler)
