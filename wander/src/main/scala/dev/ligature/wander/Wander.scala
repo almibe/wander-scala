@@ -121,7 +121,7 @@ def printWanderValue(value: WanderValue, interpolation: Boolean = false): String
     case WanderValue.Int(value)   => value.toString()
     case WanderValue.String(value) =>
       if interpolation then value else s"\"$value\"" // TODO escape correctly
-    case WanderValue.Function(function) => "[Function]"
+    case WanderValue.Function(function) => "\"[Function]\""
     case WanderValue.Array(values) =>
       "[" + values.map(value => printWanderValue(value, interpolation)).mkString(", ") + "]"
     case WanderValue.Module(values) =>

@@ -218,7 +218,8 @@ object LigNibblers {
             case Some(c) =>
               c match {
                 case "\\" | "\"" => sb.append(c)
-                case "b" | "f" | "n" | "r" | "t" => ???//sb.append("\\"); sb.append(c)
+                case "n" => sb.append("\n")
+                case "b" | "f" | "r" | "t" => ???//sb.append("\\"); sb.append(c)
                 case "u" =>
                   sb.append(c)
                   val res = gaze.attempt(hexNibbler)

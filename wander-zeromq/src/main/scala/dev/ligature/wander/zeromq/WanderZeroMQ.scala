@@ -36,7 +36,7 @@ private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
             request match {
               case Left(err) => throw RuntimeException(err)
               case Right((WanderValue.Module(request)), _) => 
-                val result = runRequest(request, std())
+                val result = runRequest(request, environment)
                 socket.send(result.getBytes(ZMQ.CHARSET), 0)
               case _ => socket.send(printError("Unexpected input.").getBytes(ZMQ.CHARSET), 0)
             }
