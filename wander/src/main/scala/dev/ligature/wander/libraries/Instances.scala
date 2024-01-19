@@ -17,10 +17,10 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.boundary
 import scala.util.boundary.break
+import jetbrains.exodus.entitystore.PersistentEntityStore
 
-/**
- * A named instance of an empty Environment used when parsing wmdn.
- */
+/** A named instance of an empty Environment used when parsing wmdn.
+  */
 val wmdn: Environment = Environment()
 
 /** Create the "default" environment for working with Wander.
@@ -38,6 +38,9 @@ def std(): Environment =
     .bindVariable(Field("String"), stringModule)
     .bindVariable(Field("Test"), testingModule)
     .bindVariable(Field("import"), importFunction)
+
+def stdWithStore(env: jetbrains.exodus.env.Environment): Environment =
+  std().bindVariable(Field("Store"), createStoreModule(env))
 
 /** Load Wander modules from the path provided using the environment provided as a base.
   */
@@ -64,13 +67,13 @@ def loadFromPath(path: Path, environment: Environment): Either[WanderError, Envi
             run(script, std()) match
               case Left(err) => break(Left(err))
               case Right((WanderValue.Module(values), _)) =>
-                values.foreach((name, value) =>
-                  module.put(name, value)
-                )
+                values.foreach((name, value) => module.put(name, value))
               case x => break(Left(WanderError("Unexpected value from load result. $x")))
-        resultEnvironment =
-          resultEnvironment.bindVariable(TaggedField(modname, Tag.Untagged), WanderValue.Module(module.toMap)) match
-            case Left(value)  => ???
-            case Right(value) => value
+        resultEnvironment = resultEnvironment.bindVariable(
+          TaggedField(modname, Tag.Untagged),
+          WanderValue.Module(module.toMap)
+        ) match
+          case Left(value)  => ???
+          case Right(value) => value
       }
     Right(resultEnvironment)
