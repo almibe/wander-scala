@@ -4,11 +4,19 @@
 
 package dev.ligature.wander
 
+import dev.ligature.gaze.{Nibbler, repeat}
 import dev.ligature.gaze.{
-  Nibbler,
+  Gaze,
+  optional,
+  take,
+  takeAll,
+  takeCond,
+  takeFirst,
+  takeString,
+  takeUntil,
+  takeWhile,
   repeat
 }
-import dev.ligature.gaze.{Gaze, optional, take, takeAll, takeCond, takeFirst, takeString, takeUntil, takeWhile, repeat}
 import scala.collection.mutable.ListBuffer
 import scala.util.boundary, boundary.break
 
@@ -25,14 +33,14 @@ def process(terms: Seq[Term]): Either[WanderError, Seq[Expression]] =
 
 def process(term: Term): Either[WanderError, Expression] =
   term match {
-    case Term.Pipe                                  => ???
-    case Term.QuestionMark                          => Right(Expression.QuestionMark)
-    case Term.Array(terms)                          => processArray(terms)
-    case Term.BooleanLiteral(value)                 => Right(Expression.BooleanValue(value))
-    case Term.Binding(name, tag, value)             => processBinding(name, tag, value)
-    case Term.IntegerLiteral(value)                 => Right(Expression.IntegerValue(value))
-    case Term.FieldPathTerm(value)                  => Right(Expression.FieldPathExpression(value))
-    case Term.FieldTerm(value)                      => Right(Expression.FieldExpression(value))
+    case Term.Pipe                              => ???
+    case Term.QuestionMark                      => Right(Expression.QuestionMark)
+    case Term.Array(terms)                      => processArray(terms)
+    case Term.BooleanLiteral(value)             => Right(Expression.BooleanValue(value))
+    case Term.Binding(name, tag, value)         => processBinding(name, tag, value)
+    case Term.IntegerLiteral(value)             => Right(Expression.IntegerValue(value))
+    case Term.FieldPathTerm(value)              => Right(Expression.FieldPathExpression(value))
+    case Term.FieldTerm(value)                  => Right(Expression.FieldExpression(value))
     case Term.StringLiteral(value, interpolate) => Right(Expression.StringValue(value, interpolate))
     case Term.Lambda(parameters, body)          => processLambda(parameters, body)
     case Term.Grouping(terms)                   => processGrouping(terms)
@@ -103,7 +111,7 @@ def processLambda(parameters: Seq[Field], body: Term): Either[WanderError, Expre
 def processBinding(
     name: Field,
     tag: Option[FieldPath],
-    value: Term,
+    value: Term
 ): Either[WanderError, Expression.Binding] =
   process(value) match {
     case Left(err)         => ???

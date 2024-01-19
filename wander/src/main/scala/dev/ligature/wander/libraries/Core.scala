@@ -16,37 +16,41 @@ import dev.ligature.wander.FieldPath
 
 val coreModule = WanderValue.Module(
   Map(
-    Field("eq") -> WanderValue.Function(HostFunction(
-      "Check if two values are equal.",
-      Seq(
-        TaggedField(Field("left"), Tag.Untagged),
-        TaggedField(Field("right"), Tag.Untagged)
-      ),
-      Tag.Untagged,
-      (args: Seq[WanderValue], environment: Environment) =>
-        args match
-          case Seq(first, second) =>
-            val res = first.asInstanceOf[WanderValue] == second.asInstanceOf[WanderValue]
-            Right((WanderValue.Bool(res), environment))
-          case _ => ???
-    ))
+    Field("eq") -> WanderValue.Function(
+      HostFunction(
+        "Check if two values are equal.",
+        Seq(
+          TaggedField(Field("left"), Tag.Untagged),
+          TaggedField(Field("right"), Tag.Untagged)
+        ),
+        Tag.Untagged,
+        (args: Seq[WanderValue], environment: Environment) =>
+          args match
+            case Seq(first, second) =>
+              val res = first.asInstanceOf[WanderValue] == second.asInstanceOf[WanderValue]
+              Right((WanderValue.Bool(res), environment))
+            case _ => ???
+      )
+    )
   )
 )
 
-val importFunction = WanderValue.Function(HostFunction(
-  "",
-  Seq(TaggedField(Field("import"), Tag.Untagged)),
-  Tag.Untagged,
-  (args, environment) =>
-    args match
-      case Seq(WanderValue.String(value)) =>
-        val fieldPath = value.split('.').map(Field(_))
-        environment.importModule(FieldPath(fieldPath.toSeq)) match
-          case Left(err) => Left(err)
-          case Right(environment) =>
-            Right((WanderValue.Module(Map()), environment))
-      case x => Left(WanderError(s"Error: Unexpected value $x"))
-))
+val importFunction = WanderValue.Function(
+  HostFunction(
+    "",
+    Seq(TaggedField(Field("import"), Tag.Untagged)),
+    Tag.Untagged,
+    (args, environment) =>
+      args match
+        case Seq(WanderValue.String(value)) =>
+          val fieldPath = value.split('.').map(Field(_))
+          environment.importModule(FieldPath(fieldPath.toSeq)) match
+            case Left(err) => Left(err)
+            case Right(environment) =>
+              Right((WanderValue.Module(Map()), environment))
+        case x => Left(WanderError(s"Error: Unexpected value $x"))
+  )
+)
 
 // HostFunction(
 //   Name("Core.Any"),

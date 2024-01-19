@@ -4,7 +4,6 @@
 
 package dev.ligature.gaze
 
-
 import scala.collection.mutable.ArrayBuffer
 
 object Gaze {

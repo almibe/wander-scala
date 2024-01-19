@@ -4,7 +4,19 @@
 
 package dev.ligature.wander
 
-import dev.ligature.gaze.{Gaze, Nibbler, optional, take, takeAll, takeCond, takeFirst, takeString, takeUntil, takeWhile, repeat}
+import dev.ligature.gaze.{
+  Gaze,
+  Nibbler,
+  optional,
+  take,
+  takeAll,
+  takeCond,
+  takeFirst,
+  takeString,
+  takeUntil,
+  takeWhile,
+  repeat
+}
 import dev.ligature.gaze.Result
 import dev.ligature.gaze.seq
 import dev.ligature.gaze.flatten
@@ -217,9 +229,9 @@ object LigNibblers {
             case None => fail = true
             case Some(c) =>
               c match {
-                case "\\" | "\"" => sb.append(c)
-                case "n" => sb.append("\n")
-                case "b" | "f" | "r" | "t" => ???//sb.append("\\"); sb.append(c)
+                case "\\" | "\""           => sb.append(c)
+                case "n"                   => sb.append("\n")
+                case "b" | "f" | "r" | "t" => ??? // sb.append("\\"); sb.append(c)
                 case "u" =>
                   sb.append(c)
                   val res = gaze.attempt(hexNibbler)

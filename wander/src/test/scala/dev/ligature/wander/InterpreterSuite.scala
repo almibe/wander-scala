@@ -11,7 +11,7 @@ import dev.ligature.wander.libraries.std
 class InterpreterSuite extends FunSuite {
   def check(script: String, expected: Map[Field, WanderValue]) =
     run(script, std()) match
-      case Left(err)    => throw RuntimeException(err.toString())
+      case Left(err)         => throw RuntimeException(err.toString())
       case Right((value, _)) => assertEquals(value, WanderValue.Module(expected))
 
   test("load script with no exports") {

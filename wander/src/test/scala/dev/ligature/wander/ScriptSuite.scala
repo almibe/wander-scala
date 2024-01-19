@@ -45,5 +45,6 @@ class ScriptSuite extends munit.FunSuite {
               }
             case _ => ???
         }
-      case _ => throw RuntimeException(s"In $fileName -- Expected result to be array got ${results}")
+      case _ =>
+        throw RuntimeException(s"In $fileName -- Expected result to be array got ${results}")
 }

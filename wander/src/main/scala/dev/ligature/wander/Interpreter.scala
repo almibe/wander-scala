@@ -213,8 +213,12 @@ def callModule(
         case Right((WanderValue.String(fieldName), _)) =>
           if values.contains(Field(fieldName)) then Right(values(Field(fieldName)), environment)
           else Left(WanderError(s"Could not read $fieldName from Module."))
-        case _ => Left(WanderError(s"When calling a Module only pass a single String argument.\n$arguments"))
-    case _ => Left(WanderError(s"When calling a Module only pass a single String argument.\n$arguments"))
+        case _ =>
+          Left(
+            WanderError(s"When calling a Module only pass a single String argument.\n$arguments")
+          )
+    case _ =>
+      Left(WanderError(s"When calling a Module only pass a single String argument.\n$arguments"))
 
 def callLambda(
     arguments: Seq[Expression],

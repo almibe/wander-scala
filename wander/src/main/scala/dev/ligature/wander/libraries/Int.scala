@@ -13,18 +13,20 @@ import dev.ligature.wander.Field
 
 val intModule = WanderValue.Module(
   Map(
-    Field("add") -> WanderValue.Function(HostFunction(
-      "Add two Ints.",
-      Seq(
-        TaggedField(Field("left"), Tag.Untagged),//Tag.Single(Name("Core.Int"))),
-        TaggedField(Field("right"), Tag.Untagged)//Tag.Single(Name("Core.Int")))
-      ),
-      Tag.Untagged,//Tag.Single(Field("Core.Int")),
-      (args, environment) =>
-        args match
-          case Seq(WanderValue.Int(left), WanderValue.Int(right)) =>
-            Right((WanderValue.Int(left + right), environment))
-          case _ => ???
-      ))
+    Field("add") -> WanderValue.Function(
+      HostFunction(
+        "Add two Ints.",
+        Seq(
+          TaggedField(Field("left"), Tag.Untagged), // Tag.Single(Name("Core.Int"))),
+          TaggedField(Field("right"), Tag.Untagged) // Tag.Single(Name("Core.Int")))
+        ),
+        Tag.Untagged, // Tag.Single(Field("Core.Int")),
+        (args, environment) =>
+          args match
+            case Seq(WanderValue.Int(left), WanderValue.Int(right)) =>
+              Right((WanderValue.Int(left + right), environment))
+            case _ => ???
+      )
+    )
   )
 )

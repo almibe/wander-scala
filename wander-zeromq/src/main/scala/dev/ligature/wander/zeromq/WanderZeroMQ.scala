@@ -35,16 +35,17 @@ private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
             val request = runWander(query, wmdn)
             request match {
               case Left(err) => throw RuntimeException(err)
-              case Right((WanderValue.Module(request)), _) => 
+              case Right(WanderValue.Module(request), _) =>
                 val result = runRequest(request, environment)
                 socket.send(result.getBytes(ZMQ.CHARSET), 0)
               case _ => socket.send(printError("Unexpected input.").getBytes(ZMQ.CHARSET), 0)
             }
-      catch case e =>
-        socket.close()
-        zContext.close()
-        e.printStackTrace()
-        continue = false
+      catch
+        case e =>
+          socket.close()
+          zContext.close()
+          e.printStackTrace()
+          continue = false
 
   override def close(): Unit = zContext.close()
 }
@@ -56,17 +57,23 @@ def runRequest(request: Map[Field, WanderValue], environment: Environment): Stri
     case (Some(WanderValue.String("run")), Some(WanderValue.String(script))) =>
       run(script, environment) match {
         case Left(err) =>
-          printWanderValue(WanderValue.Module(Map((Field("error") -> WanderValue.String(err.userMessage)))))
-        case Right(value) => 
-          printWanderValue(WanderValue.Module(Map((Field("result") -> value(0)))))
+          printWanderValue(
+            WanderValue.Module(Map(Field("error") -> WanderValue.String(err.userMessage)))
+          )
+        case Right(value) =>
+          printWanderValue(WanderValue.Module(Map(Field("result") -> value(0))))
       }
-    case _ => 
-      printWanderValue(WanderValue.Module(Map((Field("error") -> WanderValue.String(s"No match - $action - $script")))))
+    case _ =>
+      printWanderValue(
+        WanderValue.Module(
+          Map(Field("error") -> WanderValue.String(s"No match - $action - $script"))
+        )
+      )
   }
 }
 
 def printError(message: String): String =
-  printWanderValue(WanderValue.Module(Map((Field("error") -> WanderValue.String(message)))))
+  printWanderValue(WanderValue.Module(Map(Field("error") -> WanderValue.String(message))))
 
 def runServer(port: Int): AutoCloseable = {
   val server = WanderZServer(port)

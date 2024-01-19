@@ -4,7 +4,17 @@
 
 package dev.ligature.wander
 
-import dev.ligature.gaze.{Gaze, Nibbler, optional, take, takeAll, takeCond, takeFirst, takeString, repeat}
+import dev.ligature.gaze.{
+  Gaze,
+  Nibbler,
+  optional,
+  take,
+  takeAll,
+  takeCond,
+  takeFirst,
+  takeString,
+  repeat
+}
 import dev.ligature.wander.Token
 import dev.ligature.gaze.Result
 import dev.ligature.gaze.SeqSource

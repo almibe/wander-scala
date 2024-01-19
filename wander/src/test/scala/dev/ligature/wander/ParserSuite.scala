@@ -237,7 +237,15 @@ class ParserSuite extends FunSuite {
   // }
   test("parse lambda bindings syntax") {
     val result = check("id i i2 = i")
-    val expected = Right(Seq(Term.Binding(Field("id"), None, Term.Lambda(Seq(Field("i"), Field("i2")), Term.FieldPathTerm(FieldPath(Seq(Field("i"))))))))
+    val expected = Right(
+      Seq(
+        Term.Binding(
+          Field("id"),
+          None,
+          Term.Lambda(Seq(Field("i"), Field("i2")), Term.FieldPathTerm(FieldPath(Seq(Field("i")))))
+        )
+      )
+    )
     assertEquals(result, expected)
   }
 }

@@ -98,9 +98,7 @@ case class Environment(
       this.read(fieldPath) match
         case Left(value) => break(Left(value))
         case Right(WanderValue.Module(module)) =>
-          module.foreach((k, v) =>
-            currentEnvironemnt = currentEnvironemnt.bindVariable(k, v)
-          )
+          module.foreach((k, v) => currentEnvironemnt = currentEnvironemnt.bindVariable(k, v))
         case _ => ???
     Right(currentEnvironemnt)
 
