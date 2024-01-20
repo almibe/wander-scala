@@ -54,11 +54,7 @@ def readField(
 ): Either[WanderError, (WanderValue, Environment)] =
   environment.read(field) match
     case Left(err) => Left(err)
-    case Right(value) =>
-      value match
-        case WanderValue.Property(property) =>
-          property.read(environment)
-        case _ => Right((value, environment))
+    case Right(value) => Right((value, environment))
 
 def readFieldPath(
     fieldPath: FieldPath,
@@ -66,11 +62,7 @@ def readFieldPath(
 ): Either[WanderError, (WanderValue, Environment)] =
   environment.read(fieldPath) match
     case Left(err) => Left(err)
-    case Right(value) =>
-      value match
-        case WanderValue.Property(property) =>
-          property.read(environment)
-        case _ => Right((value, environment))
+    case Right(value) => Right((value, environment))
 
 def interpolateString(
     value: String,

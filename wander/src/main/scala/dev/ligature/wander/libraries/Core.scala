@@ -10,7 +10,6 @@ import dev.ligature.wander.WanderValue
 import dev.ligature.wander.TaggedField
 import dev.ligature.wander.Tag
 import dev.ligature.wander.WanderError
-import dev.ligature.wander.HostProperty
 import dev.ligature.wander.Field
 import dev.ligature.wander.FieldPath
 
