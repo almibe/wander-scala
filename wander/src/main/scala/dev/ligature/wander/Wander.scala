@@ -7,6 +7,7 @@ package dev.ligature.wander
 import dev.ligature.wander.parse
 import scala.annotation.unused
 import dev.ligature.wander.libraries.std
+import java.util.HexFormat
 
 /** Represents a Value in the Wander language.
   */
@@ -106,6 +107,8 @@ def printResult(value: Either[WanderError, (WanderValue, Environment)]): String 
     case Right(value) => printWanderValue(value._1)
   }
 
+val formatter = HexFormat.of()
+
 def printWanderValue(value: WanderValue, interpolation: Boolean = false): String =
   value match {
     case WanderValue.QuestionMark => "?"
@@ -120,5 +123,5 @@ def printWanderValue(value: WanderValue, interpolation: Boolean = false): String
       "{" + values
         .map((field, value) => field.name + " = " + printWanderValue(value, interpolation))
         .mkString(", ") + "}"
-    case WanderValue.Bytes(value) => "0x00"
+    case WanderValue.Bytes(value) => s"0x${formatter.formatHex(value.toArray)}"
   }

@@ -35,6 +35,12 @@ class LiteralsSuite extends munit.FunSuite {
     val result = WanderValue.Bytes(Seq(1.byteValue, -1.byteValue))
     check(script, result)
   }
+  test("test printing bytes") {
+    run("0xFF", std()) match {
+      case Right((bytes, _)) => assertEquals(printWanderValue(bytes), "0xff")
+      case Left(_)           => ???
+    }
+  }
   test("integer") {
     val script = "24601"
     val result = WanderValue.Int(24601)
