@@ -27,6 +27,7 @@ import scala.util.boundary.break
 enum Term:
   case FieldTerm(field: Field)
   case FieldPathTerm(fieldPath: FieldPath)
+  case Bytes(value: Seq[Byte])
   case IntegerLiteral(value: Long)
   case StringLiteral(value: String, interpolated: Boolean = false)
   case BooleanLiteral(value: Boolean)
@@ -74,6 +75,11 @@ val booleanNib: Nibbler[Token, Term.BooleanLiteral] = gaze =>
   gaze.next() match
     case Some(Token.BooleanLiteral(b)) => Result.Match(Term.BooleanLiteral(b))
     case _                             => Result.NoMatch
+
+val bytesNib: Nibbler[Token, Term.Bytes] = gaze =>
+  gaze.next() match
+    case Some(Token.Bytes(b)) => Result.Match(Term.Bytes(b))
+    case _                    => Result.NoMatch
 
 val integerNib: Nibbler[Token, Term.IntegerLiteral] = gaze =>
   gaze.next() match
@@ -277,6 +283,7 @@ val expressionNib =
     lambdaNib,
     groupingNib,
     stringNib,
+    bytesNib,
     integerNib,
     whenExpressionNib,
     arrayNib,

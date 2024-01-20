@@ -30,6 +30,11 @@ class LiteralsSuite extends munit.FunSuite {
     val result = WanderValue.Bool(true)
     check(script, result)
   }
+  test("bytes") {
+    val script = "0x01FF"
+    val result = WanderValue.Bytes(Seq(1.byteValue, -1.byteValue))
+    check(script, result)
+  }
   test("integer") {
     val script = "24601"
     val result = WanderValue.Int(24601)

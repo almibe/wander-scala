@@ -47,6 +47,7 @@ def process(term: Term): Either[WanderError, Expression] =
     case Term.WhenExpression(conditionals)      => processWhenExpression(conditionals)
     case Term.Application(terms)                => processApplication(terms)
     case Term.Module(values)                    => processModule(values)
+    case Term.Bytes(value)                      => Right(Expression.Bytes(value))
   }
 
 def processGrouping(terms: Seq[Term]): Either[WanderError, Expression.Grouping] = {

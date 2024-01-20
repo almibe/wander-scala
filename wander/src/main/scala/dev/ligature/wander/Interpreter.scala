@@ -13,6 +13,7 @@ enum Expression:
   case FieldExpression(field: dev.ligature.wander.Field)
   case FieldPathExpression(fieldPath: dev.ligature.wander.FieldPath)
   case IntegerValue(value: Long)
+  case Bytes(value: Seq[Byte])
   case StringValue(value: String, interpolated: Boolean = false)
   case BooleanValue(value: Boolean)
   case Array(value: Seq[Expression])
@@ -31,6 +32,7 @@ def eval(
   expression match {
     case Expression.BooleanValue(value) => Right((WanderValue.Bool(value), environment))
     case Expression.IntegerValue(value) => Right((WanderValue.Int(value), environment))
+    case Expression.Bytes(value)        => Right((WanderValue.Bytes(value), environment))
     case Expression.StringValue(value, interpolated) =>
       if interpolated then interpolateString(value, environment)
       else Right((WanderValue.String(value), environment))
@@ -53,7 +55,7 @@ def readField(
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   environment.read(field) match
-    case Left(err) => Left(err)
+    case Left(err)    => Left(err)
     case Right(value) => Right((value, environment))
 
 def readFieldPath(
@@ -61,7 +63,7 @@ def readFieldPath(
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   environment.read(fieldPath) match
-    case Left(err) => Left(err)
+    case Left(err)    => Left(err)
     case Right(value) => Right((value, environment))
 
 def interpolateString(

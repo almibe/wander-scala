@@ -13,6 +13,7 @@ import dev.ligature.wander.libraries.std
 enum WanderValue:
   case Int(value: Long)
   case Bool(value: Boolean)
+  case Bytes(value: Seq[Byte])
   case String(value: java.lang.String)
   case Array(values: Seq[WanderValue])
   case Module(values: Map[Field, WanderValue])
@@ -119,4 +120,5 @@ def printWanderValue(value: WanderValue, interpolation: Boolean = false): String
       "{" + values
         .map((field, value) => field.name + " = " + printWanderValue(value, interpolation))
         .mkString(", ") + "}"
+    case WanderValue.Bytes(value) => "0x00"
   }

@@ -24,10 +24,12 @@ import dev.ligature.gaze.concat
 import scala.collection.mutable.ArrayBuffer
 import dev.ligature.gaze.between
 import dev.ligature.gaze.takeAny
+import java.util.HexFormat
 
 enum Token:
   case BooleanLiteral(value: Boolean)
   case Spaces(value: String)
+  case Bytes(value: Seq[Byte])
   case IntegerLiteral(value: Long)
   case StringLiteral(value: String, interpolated: Boolean = false)
   case Field(name: String)
@@ -66,6 +68,14 @@ val stringTokenNib: Nibbler[String, Token] =
 
 val newLineTokenNib =
   takeFirst(takeString("\n"), takeString("\r\n")).map(res => Token.NewLine)
+
+val bytesNib = takeAll(
+  seq(takeString("0x")),
+  takeWhile((c: String) => c(0).isLetter || c(0).isDigit)
+).map(res =>
+  val format = HexFormat.of()
+  Token.Bytes(format.parseHex(res(1).mkString).toSeq)
+)
 
 val commentTokenNib = takeAll(
   takeString("--"),
@@ -167,6 +177,7 @@ val tokensNib: Nibbler[String, Seq[Token]] = repeat(
     dotNib,
     atNib,
     lambdaTokenNib,
+    bytesNib,
     integerTokenNib,
     newLineTokenNib,
     openBraceTokenNib,

@@ -24,6 +24,21 @@ class LexerSuite extends FunSuite {
     )
     check(script, tokens)
   }
+  test("tokenize Bytes") {
+    val script = "0x00 0xFF 0xfe 0x10"
+    val tokens = Right(
+      Seq(
+        Token.Bytes(Seq(0.byteValue)),
+        sp,
+        Token.Bytes(Seq(-1.byteValue)),
+        sp,
+        Token.Bytes(Seq(-2.byteValue)),
+        sp,
+        Token.Bytes(Seq(16.byteValue))
+      )
+    )
+    check(script, tokens)
+  }
   test("tokenize Strings") {
     val script = "\"hello, world!\""
     val tokens = Right(Seq(Token.StringLiteral("hello, world!")))
