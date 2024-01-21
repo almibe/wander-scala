@@ -39,8 +39,8 @@ def std(): Environment =
     .bindVariable(Field("Test"), testingModule)
     .bindVariable(Field("import"), importFunction)
 
-def stdWithStore(env: jetbrains.exodus.env.Environment): Environment =
-  std().bindVariable(Field("Store"), createStoreModule(env))
+def stdWithKeylime(env: jetbrains.exodus.env.Environment): Environment =
+  std().bindVariable(Field("Keylime"), createKeylimeModule(env))
 
 /** Load Wander modules from the path provided using the environment provided as a base.
   */

@@ -265,6 +265,7 @@ val applicationInternalNib =
     lambdaNib,
     groupingNib,
     stringNib,
+    bytesNib,
     integerNib,
     whenExpressionNib,
     arrayNib,

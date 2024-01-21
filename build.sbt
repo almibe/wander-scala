@@ -27,7 +27,7 @@ lazy val wander = project
   .settings(
     name := "wander",
     scalaVersion := scala3Version,
-    libraryDependencies += "org.jetbrains.xodus" % "xodus-entity-store" % xodusVersion,
+    libraryDependencies += "org.jetbrains.xodus" % "xodus-environment" % xodusVersion,
     libraryDependencies += "ch.qos.logback" % "logback-classic" % logBackVersion,
     libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
