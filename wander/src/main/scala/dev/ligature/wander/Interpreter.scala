@@ -55,16 +55,18 @@ def readField(
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   environment.read(field) match
-    case Left(err)    => Left(err)
-    case Right(value) => Right((value, environment))
+    case Left(err)          => Left(err)
+    case Right(Some(value)) => Right((value, environment))
+    case Right(None)        => ???
 
 def readFieldPath(
     fieldPath: FieldPath,
     environment: Environment
 ): Either[WanderError, (WanderValue, Environment)] =
   environment.read(fieldPath) match
-    case Left(err)    => Left(err)
-    case Right(value) => Right((value, environment))
+    case Left(err)          => Left(err)
+    case Right(Some(value)) => Right((value, environment))
+    case Right(None)        => ???
 
 def interpolateString(
     value: String,
@@ -153,8 +155,9 @@ def handleApplication(
   expression.head match {
     case Expression.FieldPathExpression(fieldPath) =>
       environment.read(fieldPath) match {
-        case Left(err) => Left(err)
-        case Right(value) =>
+        case Left(err)   => Left(err)
+        case Right(None) => Left(WanderError(s"Error: Could not read $fieldPath."))
+        case Right(Some(value)) =>
           val arguments = expression.tail
           value match {
             case WanderValue.Function(Lambda(Expression.Lambda(parameters, body))) =>

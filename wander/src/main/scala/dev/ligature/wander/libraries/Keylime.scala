@@ -28,7 +28,7 @@ def openStore(path: Path): jetbrains.exodus.env.Environment =
   val environment = Environments.newInstance(path.toFile(), EnvironmentConfig())
   environment
 
-def createKeylimeModule(env: jetbrains.exodus.env.Environment) =
+def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Module =
   WanderValue.Module(
     Map(
       Field("stores") -> WanderValue.Function(

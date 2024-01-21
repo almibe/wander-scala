@@ -11,8 +11,8 @@ import scala.util.boundary.break
 import dev.ligature.wander.loaders.ModuleLoader
 
 case class Environment(
-    scopes: List[Map[Field, (Tag, WanderValue)]] = List(Map()),
-    loaders: Seq[ModuleLoader] = Seq()
+    loaders: Seq[ModuleLoader] = Seq(),
+    scopes: List[Map[Field, (Tag, WanderValue)]] = List(Map())
 ) {
   def eval(expressions: Seq[Expression]): Either[WanderError, (WanderValue, Environment)] = {
     var env = this
@@ -36,6 +36,7 @@ case class Environment(
 
   def newScope(): Environment =
     Environment(
+      this.loaders,
       this.scopes.appended(Map())
     )
 
@@ -46,7 +47,7 @@ case class Environment(
     val currentScope = this.scopes.last
     val newVariables = currentScope + (field -> (Tag.Untagged, wanderValue))
     val oldScope = this.scopes.dropRight(1)
-    Environment(oldScope.appended(newVariables))
+    Environment(this.loaders, oldScope.appended(newVariables))
 
   def bindVariable(
       taggedField: TaggedField,
@@ -60,46 +61,48 @@ case class Environment(
         val oldScope = this.scopes.dropRight(1)
         Right(
           Environment(
+            this.loaders,
             oldScope.appended(newVariables)
           )
         )
     }
 
-  def read(field: Field): Either[WanderError, WanderValue] =
+  def read(field: Field): Either[WanderError, Option[WanderValue]] =
     var currentScopeOffset = this.scopes.length - 1
     while (currentScopeOffset >= 0) {
       val currentScope = this.scopes(currentScopeOffset)
       if (currentScope.contains(field)) {
-        return Right(currentScope(field)._2)
+        return Right(Some(currentScope(field)._2))
       }
       currentScopeOffset -= 1
     }
-    Left(WanderError(s"Could not find ${field.name} in scope."))
+    Right(None)
 
-  def read(fieldPath: FieldPath): Either[WanderError, WanderValue] =
+  def read(fieldPath: FieldPath): Either[WanderError, Option[WanderValue]] =
     boundary:
-      var result: Either[WanderError, WanderValue] =
-        Left(WanderError(s"Could not read $fieldPath."))
+      var result: Option[WanderValue] = None
       fieldPath.parts.foreach(field =>
-        if result.isLeft then
+        if result.isEmpty then
           this.read(field) match
             case Left(err)    => break(Left(err))
-            case Right(value) => result = Right(value)
+            case Right(value) => result = value
         else
           result match
-            case Right(WanderValue.Module(module)) =>
-              if module.contains(field) then result = Right(module(field))
+            case None => throw RuntimeException(s"Error trying to read $fieldPath\n$this")
+            case Some(WanderValue.Module(module)) =>
+              if module.contains(field) then result = Some(module(field))
               else Left(WanderError(s"Could not read field path, $fieldPath."))
             case _ => ???
       )
-      result
+      Right(result)
 
   def importModule(fieldPath: FieldPath): Either[WanderError, Environment] =
     var currentEnvironemnt = this
     boundary:
       this.read(fieldPath) match
+        case Right(None) => ???
         case Left(value) => break(Left(value))
-        case Right(WanderValue.Module(module)) =>
+        case Right(Some(WanderValue.Module(module))) =>
           module.foreach((k, v) => currentEnvironemnt = currentEnvironemnt.bindVariable(k, v))
         case _ => ???
     Right(currentEnvironemnt)

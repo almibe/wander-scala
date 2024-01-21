@@ -6,6 +6,7 @@ package dev.ligature.wander.loaders
 
 import dev.ligature.wander.FieldPath
 import dev.ligature.wander.WanderValue
+import dev.ligature.wander.WanderError
 
 trait ModuleLoader:
-  def lookup(path: FieldPath): Option[WanderValue]
+  def lookup(path: FieldPath): Either[WanderError, Option[WanderValue]]

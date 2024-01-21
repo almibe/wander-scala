@@ -4,11 +4,12 @@
 
 package dev.ligature.wander.loaders
 
-import dev.ligature.wander.FieldPath
-import dev.ligature.wander.WanderValue
+import dev.ligature.wander.Environment
 import dev.ligature.wander.WanderError
+import dev.ligature.wander.WanderValue
+import dev.ligature.wander.FieldPath
 
-final class KeylimeLoader extends ModuleLoader {
+final class EnvironmentLoader(environment: Environment) extends ModuleLoader {
   override def lookup(path: FieldPath): Either[WanderError, Option[WanderValue]] =
-    ???
+    environment.read(path)
 }

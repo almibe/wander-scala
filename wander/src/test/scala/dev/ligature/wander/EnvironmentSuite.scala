@@ -21,23 +21,23 @@ class EnvironmentSuite extends FunSuite {
     val res = environment.read(identifier.field)
     val res2 = environment2.read(identifier.field)
 
-    assert(res.isLeft)
-    assert(environment.read(identifier2.field).isLeft)
-    assertEquals(res2, Right(value1))
-    assert(environment2.read(identifier2.field).isLeft)
+    assertEquals(res, Right(None))
+    assertEquals(environment.read(identifier2.field), Right(None))
+    assertEquals(res2, Right(Some(value1)))
+    assertEquals(environment2.read(identifier2.field), Right(None))
   }
 
   test("test scoping") {
     val environment = Environment()
     val environment2 = environment.bindVariable(identifier, value1).getOrElse(???)
-    assertEquals(environment2.read(identifier.field), Right(value1))
+    assertEquals(environment2.read(identifier.field), Right(Some(value1)))
 
     val environment3 = environment2.newScope()
-    assertEquals(environment3.read(identifier.field), Right(value1))
+    assertEquals(environment3.read(identifier.field), Right(Some(value1)))
 
     val environment4 = environment3.bindVariable(identifier, value2).getOrElse(???)
     val environment5 = environment4.bindVariable(identifier2, value3).getOrElse(???)
-    assertEquals(environment5.read(identifier.field), Right(value2))
-    assertEquals(environment5.read(identifier2.field), Right(value3))
+    assertEquals(environment5.read(identifier.field), Right(Some(value2)))
+    assertEquals(environment5.read(identifier2.field), Right(Some(value3)))
   }
 }
