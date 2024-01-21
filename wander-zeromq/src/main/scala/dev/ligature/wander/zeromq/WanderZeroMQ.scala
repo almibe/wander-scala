@@ -9,7 +9,6 @@ import org.zeromq.{ZMQ, ZContext, SocketType}
 import dev.ligature.wander.run as runWander
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.printWanderValue
-import dev.ligature.wander.libraries.loadFromPath
 import dev.ligature.wander.printResult
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -18,6 +17,7 @@ import dev.ligature.wander.libraries.std
 import dev.ligature.wander.*
 import com.typesafe.scalalogging.Logger
 import dev.ligature.wander.libraries.*
+import dev.ligature.wander.loaders.loadFromPath
 
 private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
   private val zContext = ZContext()
