@@ -77,9 +77,7 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment) =
           (args, environment) =>
             args match {
               case Seq(WanderValue.String(storeName)) =>
-                val stores = env.executeInTransaction(tx =>
-                  env.removeStore(storeName, tx)
-                )
+                val stores = env.executeInTransaction(tx => env.removeStore(storeName, tx))
                 Right((WanderValue.Module(Map()), environment))
               case _ => ???
             }
@@ -91,14 +89,19 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment) =
           Seq(
             TaggedField(Field("storeName"), Tag.Untagged),
             TaggedField(Field("key"), Tag.Untagged),
-            TaggedField(Field("value"), Tag.Untagged),
+            TaggedField(Field("value"), Tag.Untagged)
           ),
           Tag.Untagged,
           (args, environment) =>
             args match {
-              case Seq(WanderValue.String(storeName), WanderValue.Bytes(key), WanderValue.Bytes(value)) =>
+              case Seq(
+                    WanderValue.String(storeName),
+                    WanderValue.Bytes(key),
+                    WanderValue.Bytes(value)
+                  ) =>
                 env.executeInTransaction(tx =>
-                  val store = env.openStore(storeName, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, tx)
+                  val store =
+                    env.openStore(storeName, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, tx)
                   store.put(tx, ArrayByteIterable(key.toArray), ArrayByteIterable(value.toArray))
                   tx.commit()
                 )
@@ -112,21 +115,28 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment) =
           "Set an Array of Key Value pairs.",
           Seq(
             TaggedField(Field("storeName"), Tag.Untagged),
-            TaggedField(Field("entries"), Tag.Untagged),
+            TaggedField(Field("entries"), Tag.Untagged)
           ),
           Tag.Untagged,
           (args, environment) =>
             args match {
               case Seq(WanderValue.String(storeName), WanderValue.Array(entries)) =>
                 env.executeInTransaction(tx =>
-                  val store = env.openStore(storeName, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, tx)
-                  entries.foreach(entry => {
+                  val store =
+                    env.openStore(storeName, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, tx)
+                  entries.foreach { entry =>
                     entry match {
-                      case WanderValue.Array(Seq(WanderValue.Bytes(key), WanderValue.Bytes(value))) =>
-                        store.put(tx, ArrayByteIterable(key.toArray), ArrayByteIterable(value.toArray))
+                      case WanderValue.Array(
+                            Seq(WanderValue.Bytes(key), WanderValue.Bytes(value))
+                          ) =>
+                        store.put(
+                          tx,
+                          ArrayByteIterable(key.toArray),
+                          ArrayByteIterable(value.toArray)
+                        )
                       case _ => ???
                     }
-                  })
+                  }
                   tx.commit()
                 )
                 Right((WanderValue.Module(Map()), environment))
@@ -139,14 +149,15 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment) =
           "Retrieve a Value from a Store with the given Key.",
           Seq(
             TaggedField(Field("storeName"), Tag.Untagged),
-            TaggedField(Field("key"), Tag.Untagged),
+            TaggedField(Field("key"), Tag.Untagged)
           ),
           Tag.Untagged,
           (args, environment) =>
             args match {
               case Seq(WanderValue.String(storeName), WanderValue.Bytes(key)) =>
                 val result = env.computeInReadonlyTransaction(tx =>
-                  val store = env.openStore(storeName, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, tx)
+                  val store =
+                    env.openStore(storeName, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, tx)
                   store.get(tx, ArrayByteIterable(key.toArray))
                 )
                 Right((WanderValue.Bytes(result.getBytesUnsafe().toSeq), environment))
@@ -159,14 +170,15 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment) =
           "Delete the entry with the given Key.",
           Seq(
             TaggedField(Field("storeName"), Tag.Untagged),
-            TaggedField(Field("key"), Tag.Untagged),
+            TaggedField(Field("key"), Tag.Untagged)
           ),
           Tag.Untagged,
           (args, environment) =>
             args match {
               case Seq(WanderValue.String(storeName), WanderValue.Bytes(key)) =>
                 val result = env.executeInTransaction(tx =>
-                  val store = env.openStore(storeName, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, tx)
+                  val store =
+                    env.openStore(storeName, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, tx)
                   store.delete(tx, ArrayByteIterable(key.toArray))
                   tx.commit()
                 )
@@ -179,20 +191,23 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment) =
         HostFunction(
           "Retrieve all values in this store.",
           Seq(
-            TaggedField(Field("storeName"), Tag.Untagged),
+            TaggedField(Field("storeName"), Tag.Untagged)
           ),
           Tag.Untagged,
           (args, environment) =>
             args match {
               case Seq(WanderValue.String(storeName)) =>
-                val results = env.computeInReadonlyTransaction(tx =>                  
-                  val store = env.openStore(storeName, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, tx)
+                val results = env.computeInReadonlyTransaction(tx =>
+                  val store =
+                    env.openStore(storeName, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, tx)
                   val cursor = store.openCursor(tx)
                   val results: ListBuffer[WanderValue.Array] = scala.collection.mutable.ListBuffer()
                   while (cursor.getNext()) {
                     val key = cursor.getKey().getBytesUnsafe().toSeq
                     val value = cursor.getValue().getBytesUnsafe().toSeq
-                    results += WanderValue.Array(Seq(WanderValue.Bytes(key), WanderValue.Bytes(value)))
+                    results += WanderValue.Array(
+                      Seq(WanderValue.Bytes(key), WanderValue.Bytes(value))
+                    )
                   }
                   results
                 )
@@ -207,22 +222,33 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment) =
           Seq(
             TaggedField(Field("storeName"), Tag.Untagged),
             TaggedField(Field("start"), Tag.Untagged),
-            TaggedField(Field("end"), Tag.Untagged),
+            TaggedField(Field("end"), Tag.Untagged)
           ),
           Tag.Untagged,
           (args, environment) =>
             args match {
-              case Seq(WanderValue.String(storeName), WanderValue.Bytes(start), WanderValue.Bytes(end)) =>
-                val results = env.computeInReadonlyTransaction(tx =>                  
-                  val store = env.openStore(storeName, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, tx)
+              case Seq(
+                    WanderValue.String(storeName),
+                    WanderValue.Bytes(start),
+                    WanderValue.Bytes(end)
+                  ) =>
+                val results = env.computeInReadonlyTransaction(tx =>
+                  val store =
+                    env.openStore(storeName, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, tx)
                   val cursor = store.openCursor(tx)
                   cursor.getSearchKey(ArrayByteIterable(start.toArray))
                   cursor.getPrev()
                   val results: ListBuffer[WanderValue.Array] = scala.collection.mutable.ListBuffer()
-                  while (cursor.getNext() &&  (cursor.getValue().compareTo(ArrayByteIterable(end.toArray)) != 1)) {
+                  while (
+                    cursor.getNext() && (cursor
+                      .getValue()
+                      .compareTo(ArrayByteIterable(end.toArray)) != 1)
+                  ) {
                     val key = cursor.getKey().getBytesUnsafe().toSeq
                     val value = cursor.getValue().getBytesUnsafe().toSeq
-                    results += WanderValue.Array(Seq(WanderValue.Bytes(key), WanderValue.Bytes(value)))
+                    results += WanderValue.Array(
+                      Seq(WanderValue.Bytes(key), WanderValue.Bytes(value))
+                    )
                   }
                   results
                 )

@@ -13,7 +13,7 @@ import jetbrains.exodus.env.Environment
 class StoreSuite extends WanderSuiteCommonMode {
   val store = FunFixture[Environment](
     setup = { test =>
-      openDefault() //TODO change to use a temp instance
+      openDefault() // TODO change to use a temp instance
     },
     teardown = { store =>
       store.clear()
@@ -37,7 +37,8 @@ class StoreSuite extends WanderSuiteCommonMode {
     check(script, result, stdWithKeylime(store))
   }
   store.test("set and get value in a test store") { store =>
-    val script = "Keylime.addStore \"test\", Keylime.set \"test\" 0x01 0x02, Keylime.get \"test\" 0x01"
+    val script =
+      "Keylime.addStore \"test\", Keylime.set \"test\" 0x01 0x02, Keylime.get \"test\" 0x01"
     val result = WanderValue.Bytes(Seq(2.byteValue))
     check(script, result, stdWithKeylime(store))
   }
@@ -50,11 +51,13 @@ class StoreSuite extends WanderSuiteCommonMode {
       set 0x03 0x04,
       Keylime.entries "test",
     """
-    val result = WanderValue.Array(Seq(
-      WanderValue.Array(Seq(WanderValue.Bytes(Seq(1)), WanderValue.Bytes(Seq(2)))),
-      WanderValue.Array(Seq(WanderValue.Bytes(Seq(2)), WanderValue.Bytes(Seq(3)))),
-      WanderValue.Array(Seq(WanderValue.Bytes(Seq(3)), WanderValue.Bytes(Seq(4)))),
-    ))
+    val result = WanderValue.Array(
+      Seq(
+        WanderValue.Array(Seq(WanderValue.Bytes(Seq(1)), WanderValue.Bytes(Seq(2)))),
+        WanderValue.Array(Seq(WanderValue.Bytes(Seq(2)), WanderValue.Bytes(Seq(3)))),
+        WanderValue.Array(Seq(WanderValue.Bytes(Seq(3)), WanderValue.Bytes(Seq(4))))
+      )
+    )
     check(script, result, stdWithKeylime(store))
   }
   store.test("test setAll and then entries for a store") { store =>
@@ -63,11 +66,13 @@ class StoreSuite extends WanderSuiteCommonMode {
       Keylime.setAll "test" [[0x01, 0x02], [0x02, 0x03], [0x03, 0x04]],
       Keylime.entries "test",
     """
-    val result = WanderValue.Array(Seq(
-      WanderValue.Array(Seq(WanderValue.Bytes(Seq(1)), WanderValue.Bytes(Seq(2)))),
-      WanderValue.Array(Seq(WanderValue.Bytes(Seq(2)), WanderValue.Bytes(Seq(3)))),
-      WanderValue.Array(Seq(WanderValue.Bytes(Seq(3)), WanderValue.Bytes(Seq(4)))),
-    ))
+    val result = WanderValue.Array(
+      Seq(
+        WanderValue.Array(Seq(WanderValue.Bytes(Seq(1)), WanderValue.Bytes(Seq(2)))),
+        WanderValue.Array(Seq(WanderValue.Bytes(Seq(2)), WanderValue.Bytes(Seq(3)))),
+        WanderValue.Array(Seq(WanderValue.Bytes(Seq(3)), WanderValue.Bytes(Seq(4))))
+      )
+    )
     check(script, result, stdWithKeylime(store))
   }
   store.test("test setAll and then delete and access entries for a store") { store =>
@@ -77,10 +82,12 @@ class StoreSuite extends WanderSuiteCommonMode {
       Keylime.delete "test" 0x02,
       Keylime.entries "test",
     """
-    val result = WanderValue.Array(Seq(
-      WanderValue.Array(Seq(WanderValue.Bytes(Seq(1)), WanderValue.Bytes(Seq(2)))),
-      WanderValue.Array(Seq(WanderValue.Bytes(Seq(3)), WanderValue.Bytes(Seq(4)))),
-    ))
+    val result = WanderValue.Array(
+      Seq(
+        WanderValue.Array(Seq(WanderValue.Bytes(Seq(1)), WanderValue.Bytes(Seq(2)))),
+        WanderValue.Array(Seq(WanderValue.Bytes(Seq(3)), WanderValue.Bytes(Seq(4))))
+      )
+    )
     check(script, result, stdWithKeylime(store))
   }
   store.test("test setAll and then access a range") { store =>
@@ -89,10 +96,12 @@ class StoreSuite extends WanderSuiteCommonMode {
       Keylime.setAll "test" [[0x01, 0x02], [0x02, 0x03], [0x03, 0x04], [0x04, 0x05]],
       Keylime.range "test" 0x02 0x04,
     """
-    val result = WanderValue.Array(Seq(
-      WanderValue.Array(Seq(WanderValue.Bytes(Seq(2)), WanderValue.Bytes(Seq(3)))),
-      WanderValue.Array(Seq(WanderValue.Bytes(Seq(3)), WanderValue.Bytes(Seq(4)))),
-    ))
+    val result = WanderValue.Array(
+      Seq(
+        WanderValue.Array(Seq(WanderValue.Bytes(Seq(2)), WanderValue.Bytes(Seq(3)))),
+        WanderValue.Array(Seq(WanderValue.Bytes(Seq(3)), WanderValue.Bytes(Seq(4))))
+      )
+    )
     check(script, result, stdWithKeylime(store))
   }
 }

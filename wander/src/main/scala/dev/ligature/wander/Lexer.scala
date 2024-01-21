@@ -69,7 +69,7 @@ val stringTokenNib: Nibbler[String, Token] =
 val newLineTokenNib =
   takeFirst(takeString("\n"), takeString("\r\n")).map(res => Token.NewLine)
 
-val bytesNib = takeAll(
+val bytesTokenNib = takeAll(
   seq(takeString("0x")),
   takeWhile((c: String) => c(0).isLetter || c(0).isDigit)
 ).map(res =>
@@ -177,7 +177,7 @@ val tokensNib: Nibbler[String, Seq[Token]] = repeat(
     dotNib,
     atNib,
     lambdaTokenNib,
-    bytesNib,
+    bytesTokenNib,
     integerTokenNib,
     newLineTokenNib,
     openBraceTokenNib,
