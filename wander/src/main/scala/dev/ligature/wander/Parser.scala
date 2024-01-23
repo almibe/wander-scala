@@ -83,7 +83,6 @@ val bytesNib: Nibbler[Token, Term.Bytes] = gaze =>
     case _                    => Result.NoMatch
 
 val pipeTermNib: Nibbler[Token, Term] = gaze =>
-  println(s"in pipe nib ${gaze.peek()}")
   gaze.next() match
     case Some(Token.Pipe) => Result.Match(Term.Pipe)
     case _                => Result.NoMatch

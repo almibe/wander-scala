@@ -17,7 +17,7 @@ import dev.ligature.wander.modules.std
 import dev.ligature.wander.*
 import com.typesafe.scalalogging.Logger
 import dev.ligature.wander.libraries.*
-import dev.ligature.wander.loaders.loadFromPath
+import dev.ligature.wander.modules.*
 
 private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
   private val zContext = ZContext()
