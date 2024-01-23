@@ -23,6 +23,7 @@ import scala.collection.mutable.ListBuffer
 import dev.ligature.gaze.repeatSep
 import scala.util.boundary
 import scala.util.boundary.break
+import scala.collection.mutable.ArrayBuffer
 
 enum Term:
   case FieldTerm(field: Field)
@@ -80,6 +81,12 @@ val bytesNib: Nibbler[Token, Term.Bytes] = gaze =>
   gaze.next() match
     case Some(Token.Bytes(b)) => Result.Match(Term.Bytes(b))
     case _                    => Result.NoMatch
+
+val pipeNib: Nibbler[Token, Term] = gaze =>
+  println(s"in pipe nib ${gaze.peek()}")
+  gaze.next() match
+    case Some(Token.Pipe) => Result.Match(Term.Pipe)
+    case _                => Result.NoMatch
 
 val integerNib: Nibbler[Token, Term.IntegerLiteral] = gaze =>
   gaze.next() match
@@ -291,7 +298,34 @@ val expressionNib =
     moduleNib,
     booleanNib,
     questionMarkTermNib,
-    fieldPathTermNib
+    fieldPathTermNib,
+    pipeNib
   )
 
-val scriptNib = optionalSeq(repeatSep(expressionNib, Token.Comma))
+//val scriptNib = optionalSeq(repeatSep(expressionNib, Token.Comma))
+val scriptNib: Nibbler[Token, Seq[Term]] = { gaze =>
+  var pipedValue: Option[Term] = None
+  val results = ArrayBuffer[Term]()
+  boundary:
+    while !gaze.isComplete do
+      gaze.attempt(expressionNib) match
+        case Result.NoMatch    => break(Result.NoMatch)
+        case Result.EmptyMatch => break(Result.NoMatch)
+        case Result.Match(value: Term) =>
+          gaze.next() match
+            case Some(Token.Comma) | None =>
+              pipedValue match
+                case None => results += value
+                case Some(pipedTerm: Term) =>
+                  value match
+                    case Term.Application(terms) =>
+                      results += Term.Application(terms ++ Seq(pipedTerm))
+                    case term: Term.FieldTerm =>
+                      results += Term.Application(Seq(term, pipedTerm))
+                    case term: Term.FieldPathTerm =>
+                      results += Term.Application(Seq(term, pipedTerm))
+                    case _ => break(Result.NoMatch)
+            case Some(Token.Pipe) => pipedValue = Some(value)
+            case Some(_)          => break(Result.NoMatch)
+    break(Result.Match(results.toSeq))
+}

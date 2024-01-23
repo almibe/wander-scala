@@ -111,6 +111,9 @@ val dotNib =
 val atNib =
   takeString("@").map(res => Token.At)
 
+val pipeNib =
+  takeString("|").map(res => Token.Pipe)
+
 val questionMarkNib =
   takeString("?").map(res => Token.QuestionMark)
 
@@ -176,6 +179,7 @@ val tokensNib: Nibbler[String, Seq[Token]] = repeat(
     arrowTokenNib,
     dotNib,
     atNib,
+    pipeNib,
     lambdaTokenNib,
     bytesTokenNib,
     integerTokenNib,

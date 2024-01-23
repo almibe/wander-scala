@@ -253,4 +253,18 @@ class ParserSuite extends FunSuite {
     )
     assertEquals(result, expected)
   }
+  test("parse pipe") {
+    val result = check("true | not")
+    val expected = Right(
+      Seq(
+        Term.Application(
+          Seq(
+            Term.FieldPathTerm(FieldPath(List(Field("not")))),
+            Term.BooleanLiteral(true)
+          )
+        )
+      )
+    )
+    assertEquals(result, expected)
+  }
 }

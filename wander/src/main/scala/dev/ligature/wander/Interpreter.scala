@@ -66,7 +66,7 @@ def readFieldPath(
   environment.read(fieldPath) match
     case Left(err)          => Left(err)
     case Right(Some(value)) => Right((value, environment))
-    case Right(None)        => ???
+    case Right(None)        => Left(WanderError(s"Could not read $fieldPath."))
 
 def interpolateString(
     value: String,

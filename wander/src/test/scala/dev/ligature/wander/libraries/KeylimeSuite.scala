@@ -10,6 +10,8 @@ import dev.ligature.wander.WanderSuiteCommonMode
 import dev.ligature.wander.libraries.openDefault
 import jetbrains.exodus.env.Environment
 
+//Note: This test suite is noisy and writes to the FS so it should be ignored unless you are testing it specifically.
+@munit.IgnoreSuite
 class StoreSuite extends WanderSuiteCommonMode {
   val store = FunFixture[Environment](
     setup = { test =>

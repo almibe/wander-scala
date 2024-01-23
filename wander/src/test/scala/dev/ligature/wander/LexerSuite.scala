@@ -102,4 +102,11 @@ class LexerSuite extends FunSuite {
     )
     check(script, tokens)
   }
+  test("tokenize pipe") {
+    val script = "true | not"
+    val tokens = Right(
+      Seq(Token.BooleanLiteral(true), sp, Token.Pipe, sp, Token.Field("not"))
+    )
+    check(script, tokens)
+  }
 }
