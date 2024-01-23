@@ -6,9 +6,9 @@ package dev.ligature.wander
 
 import java.io.File
 import scala.io.Source
-import dev.ligature.wander.libraries.std
+import dev.ligature.wander.modules.std
 import java.nio.file.Path
-import dev.ligature.wander.loaders.loadFromPath
+import dev.ligature.wander.libraries.loadFromPath
 
 class ScriptSuite extends munit.FunSuite {
   sys.env.get("WANDER_TEST_SUITE") match {

@@ -8,10 +8,10 @@ import dev.ligature.wander.WanderValue
 import scala.collection.mutable.Set
 import scala.util.boundary
 import scala.util.boundary.break
-import dev.ligature.wander.loaders.ModuleLoader
+import dev.ligature.wander.libraries.ModuleLibrary
 
 case class Environment(
-    loaders: Seq[ModuleLoader] = Seq(),
+    loaders: Seq[ModuleLibrary] = Seq(),
     scopes: List[Map[Field, (Tag, WanderValue)]] = List(Map())
 ) {
   def eval(expressions: Seq[Expression]): Either[WanderError, (WanderValue, Environment)] = {

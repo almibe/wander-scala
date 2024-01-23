@@ -2,11 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.loaders
+package dev.ligature.wander.libraries
 
 import dev.ligature.wander.FieldPath
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.WanderError
 
-trait ModuleLoader:
-  def lookup(path: FieldPath): Either[WanderError, Option[WanderValue]]
+final class KeylimeModuleLibrary extends ModuleLibrary {
+  override def lookup(path: FieldPath): Either[WanderError, Option[WanderValue]] =
+    ???
+}

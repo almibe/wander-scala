@@ -5,7 +5,7 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.WanderValue
-import dev.ligature.wander.libraries.std
+import dev.ligature.wander.modules.std
 import munit.FunSuite
 
 class TagSuite extends FunSuite {

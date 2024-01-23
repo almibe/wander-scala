@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.libraries
+package dev.ligature.wander.modules
 
 import dev.ligature.wander.WanderValue
 import scala.collection.mutable.ListBuffer
@@ -18,7 +18,7 @@ import scala.util.Success
 import scala.util.boundary
 import scala.util.boundary.break
 import jetbrains.exodus.entitystore.PersistentEntityStore
-import dev.ligature.wander.loaders.ModuleLoader
+import dev.ligature.wander.libraries.ModuleLibrary
 
 /** A named instance of an empty Environment used when parsing wmdn.
   */
@@ -26,7 +26,7 @@ val wmdn: Environment = Environment()
 
 /** Create the "default" environment for working with Wander.
   */
-def std(loaders: List[ModuleLoader] = List()): Environment =
+def std(loaders: List[ModuleLibrary] = List()): Environment =
   Environment(loaders)
     .bindVariable(Field("Array"), arrayModule)
     .bindVariable(Field("Bool"), boolModule)
@@ -42,7 +42,7 @@ def std(loaders: List[ModuleLoader] = List()): Environment =
 
 def stdWithKeylime(
     env: jetbrains.exodus.env.Environment,
-    loaders: List[ModuleLoader] = List()
+    loaders: List[ModuleLibrary] = List()
 ): Environment =
   std(loaders).bindVariable(
     Field("Keylime"),

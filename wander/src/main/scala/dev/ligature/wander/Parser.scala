@@ -82,7 +82,7 @@ val bytesNib: Nibbler[Token, Term.Bytes] = gaze =>
     case Some(Token.Bytes(b)) => Result.Match(Term.Bytes(b))
     case _                    => Result.NoMatch
 
-val pipeNib: Nibbler[Token, Term] = gaze =>
+val pipeTermNib: Nibbler[Token, Term] = gaze =>
   println(s"in pipe nib ${gaze.peek()}")
   gaze.next() match
     case Some(Token.Pipe) => Result.Match(Term.Pipe)
@@ -299,7 +299,7 @@ val expressionNib =
     booleanNib,
     questionMarkTermNib,
     fieldPathTermNib,
-    pipeNib
+    pipeTermNib
   )
 
 //val scriptNib = optionalSeq(repeatSep(expressionNib, Token.Comma))

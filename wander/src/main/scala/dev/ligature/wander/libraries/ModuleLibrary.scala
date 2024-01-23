@@ -4,10 +4,9 @@
 
 package dev.ligature.wander.libraries
 
-import dev.ligature.wander.Environment
+import dev.ligature.wander.FieldPath
 import dev.ligature.wander.WanderValue
+import dev.ligature.wander.WanderError
 
-val shapeModule = WanderValue.Module(
-  Map(
-  )
-)
+trait ModuleLibrary:
+  def lookup(path: FieldPath): Either[WanderError, Option[WanderValue]]

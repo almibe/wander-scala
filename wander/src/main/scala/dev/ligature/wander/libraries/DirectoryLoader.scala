@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.loaders
+package dev.ligature.wander.libraries
 
 import dev.ligature.wander.FieldPath
 import dev.ligature.wander.WanderValue
@@ -20,9 +20,9 @@ import scala.util.Success
 import scala.util.Failure
 import scala.io.Source
 import scala.util.Using
-import dev.ligature.wander.libraries.std
+import dev.ligature.wander.modules.std
 import dev.ligature.wander.Tag
-import dev.ligature.wander.libraries.wmdn
+import dev.ligature.wander.modules.wmdn
 
 /** Load Wander modules from the path provided using the environment provided as a base.
   */

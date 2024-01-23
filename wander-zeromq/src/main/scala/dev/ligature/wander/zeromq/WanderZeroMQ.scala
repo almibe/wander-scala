@@ -13,7 +13,7 @@ import dev.ligature.wander.printResult
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.io.File
-import dev.ligature.wander.libraries.std
+import dev.ligature.wander.modules.std
 import dev.ligature.wander.*
 import com.typesafe.scalalogging.Logger
 import dev.ligature.wander.libraries.*
@@ -26,10 +26,11 @@ private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
     val socket = zContext.createSocket(SocketType.REP)
     socket.bind(s"tcp://localhost:$port")
     var continue = true
+    val std = stdWithKeylime(openDefault())
     while (!Thread.currentThread().isInterrupted() && continue)
       try
         val query = String(socket.recv(0), ZMQ.CHARSET) // blocks waiting for a request
-        loadFromPath(File(sys.env("WANDER_LIBS")).toPath(), std()) match
+        loadFromPath(File(sys.env("WANDER_LIBS")).toPath(), std) match
           case Left(value) => throw RuntimeException(value)
           case Right(environment) =>
             val request = runWander(query, wmdn)
@@ -86,5 +87,5 @@ def runServer(port: Int): AutoCloseable = {
 
 @main def main =
   val logger = Logger("name")
-  val server = WanderZServer(4200)
+  val server = WanderZServer(4205)
   server.run()

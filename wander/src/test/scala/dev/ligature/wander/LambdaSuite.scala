@@ -4,7 +4,7 @@
 
 package dev.ligature.wander
 
-import dev.ligature.wander.libraries.std
+import dev.ligature.wander.modules.std
 import dev.ligature.wander.*
 
 class LambdaSuite extends munit.FunSuite {

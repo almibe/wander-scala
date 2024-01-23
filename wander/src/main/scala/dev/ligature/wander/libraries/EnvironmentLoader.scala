@@ -5,10 +5,11 @@
 package dev.ligature.wander.libraries
 
 import dev.ligature.wander.Environment
+import dev.ligature.wander.WanderError
 import dev.ligature.wander.WanderValue
+import dev.ligature.wander.FieldPath
 
-//Yo dawg, I heard you like Modules.
-val moduleModule = WanderValue.Module(
-  Map(
-  )
-)
+final class EnvironmentLoader(environment: Environment) extends ModuleLibrary {
+  override def lookup(path: FieldPath): Either[WanderError, Option[WanderValue]] =
+    environment.read(path)
+}

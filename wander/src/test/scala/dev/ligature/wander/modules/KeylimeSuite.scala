@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.libraries
+package dev.ligature.wander.modules
 
 import dev.ligature.wander.WanderValue
 import munit.FunSuite
 import dev.ligature.wander.WanderSuiteCommonMode
-import dev.ligature.wander.libraries.openDefault
+import dev.ligature.wander.modules.openDefault
 import jetbrains.exodus.env.Environment
 
 //Note: This test suite is noisy and writes to the FS so it should be ignored unless you are testing it specifically.
