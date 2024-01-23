@@ -6,7 +6,7 @@ package dev.ligature.wander
 
 import dev.ligature.wander.parse
 import scala.annotation.unused
-import dev.ligature.wander.modules.std
+import dev.ligature.wander.host.std
 import java.util.HexFormat
 
 /** Represents a Value in the Wander language.
@@ -48,6 +48,7 @@ case class PartialFunction(args: Seq[WanderValue], function: dev.ligature.wander
 }
 
 case class HostFunction(
+    name: FieldPath,
     docString: String,
     parameters: Seq[TaggedField],
     resultTag: Tag,

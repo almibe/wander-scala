@@ -6,7 +6,7 @@ package dev.ligature.wander
 
 import java.io.File
 import scala.io.Source
-import dev.ligature.wander.modules.std
+import dev.ligature.wander.host.std
 import java.nio.file.Path
 import dev.ligature.wander.libraries.loadFromPath
 

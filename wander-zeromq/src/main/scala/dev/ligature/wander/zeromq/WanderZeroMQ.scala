@@ -13,11 +13,11 @@ import dev.ligature.wander.printResult
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.io.File
-import dev.ligature.wander.modules.std
+import dev.ligature.wander.host.std
 import dev.ligature.wander.*
 import com.typesafe.scalalogging.Logger
 import dev.ligature.wander.libraries.*
-import dev.ligature.wander.modules.*
+import dev.ligature.wander.host.*
 
 private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
   private val zContext = ZContext()

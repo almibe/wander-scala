@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.modules
+package dev.ligature.wander.host
 
 import dev.ligature.wander.WanderValue
 import scala.collection.mutable.ListBuffer
@@ -34,10 +34,10 @@ def std(loaders: List[ModuleLibrary] = List()): Environment =
     .bindVariable(Field("Core"), coreModule)
     .bindVariable(Field("Http"), httpModule)
     .bindVariable(Field("Int"), intModule)
-    .bindVariable(Field("Module"), moduleModule)
-    .bindVariable(Field("Shape"), shapeModule)
+//    .bindVariable(Field("Module"), moduleModule)
+//    .bindVariable(Field("Shape"), shapeModule)
     .bindVariable(Field("String"), stringModule)
-    .bindVariable(Field("Test"), testingModule)
+//    .bindVariable(Field("Test"), testingModule)
     .bindVariable(Field("import"), importFunction)
 
 def stdWithKeylime(

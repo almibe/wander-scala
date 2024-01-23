@@ -8,8 +8,9 @@ import dev.ligature.wander.Environment
 import dev.ligature.wander.WanderError
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.FieldPath
+import dev.ligature.wander.HostFunction
 
-final class EnvironmentLoader(environment: Environment) extends ModuleLibrary {
+final class HostLoader(hostFunctions: Seq[HostFunction]) extends ModuleLibrary {
   override def lookup(path: FieldPath): Either[WanderError, Option[WanderValue]] =
-    environment.read(path)
+    ???
 }

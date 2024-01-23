@@ -2,13 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.modules
+package dev.ligature.wander.host
 
 import dev.ligature.wander.Environment
 import dev.ligature.wander.WanderValue
 
-//Yo dawg, I heard you like Modules.
-val moduleModule = WanderValue.Module(
-  Map(
-  )
-)
+val shapeFunctions = Seq()

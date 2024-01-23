@@ -5,7 +5,7 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.Token
-import dev.ligature.wander.modules.std
+import dev.ligature.wander.host.std
 
 class WanderSuiteCommonMode extends munit.FunSuite {
   def check(script: String, expected: WanderValue, environment: Environment = std()) =

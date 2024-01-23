@@ -20,9 +20,9 @@ import scala.util.Success
 import scala.util.Failure
 import scala.io.Source
 import scala.util.Using
-import dev.ligature.wander.modules.std
+import dev.ligature.wander.host.std
 import dev.ligature.wander.Tag
-import dev.ligature.wander.modules.wmdn
+import dev.ligature.wander.host.wmdn
 
 /** Load Wander modules from the path provided using the environment provided as a base.
   */

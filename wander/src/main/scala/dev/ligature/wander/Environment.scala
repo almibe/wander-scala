@@ -5,15 +5,31 @@
 package dev.ligature.wander
 
 import dev.ligature.wander.WanderValue
+import dev.ligature.wander.printWanderValue
 import scala.collection.mutable.Set
 import scala.util.boundary
 import scala.util.boundary.break
 import dev.ligature.wander.libraries.ModuleLibrary
+import scala.collection.mutable.ListBuffer
 
 case class Environment(
-    loaders: Seq[ModuleLibrary] = Seq(),
+    libraries: Seq[ModuleLibrary] = Seq(),
     scopes: List[Map[Field, (Tag, WanderValue)]] = List(Map())
 ) {
+  def readAllBindings(): WanderValue.Array = {
+    println("in readAllBindings")
+    val results = ListBuffer[WanderValue]()
+    //TODO query libraries
+    scopes.foreach((scope: Map[Field, (Tag, WanderValue)]) =>
+      scope.foreach((k, v) =>
+        //println(s"$k -- $v")
+        results += WanderValue.Array(Seq(WanderValue.String(k.name), WanderValue.String(printWanderValue(v._2))))
+      )
+    )
+    println(results)
+    WanderValue.Array(results.toSeq)
+  }
+
   def eval(expressions: Seq[Expression]): Either[WanderError, (WanderValue, Environment)] = {
     var env = this
     var lastResult: Option[WanderValue] = None
@@ -36,7 +52,7 @@ case class Environment(
 
   def newScope(): Environment =
     Environment(
-      this.loaders,
+      this.libraries,
       this.scopes.appended(Map())
     )
 
@@ -47,7 +63,7 @@ case class Environment(
     val currentScope = this.scopes.last
     val newVariables = currentScope + (field -> (Tag.Untagged, wanderValue))
     val oldScope = this.scopes.dropRight(1)
-    Environment(this.loaders, oldScope.appended(newVariables))
+    Environment(this.libraries, oldScope.appended(newVariables))
 
   def bindVariable(
       taggedField: TaggedField,
@@ -61,7 +77,7 @@ case class Environment(
         val oldScope = this.scopes.dropRight(1)
         Right(
           Environment(
-            this.loaders,
+            this.libraries,
             oldScope.appended(newVariables)
           )
         )

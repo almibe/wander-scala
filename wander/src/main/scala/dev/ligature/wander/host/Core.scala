@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.modules
+package dev.ligature.wander.host
 
 import dev.ligature.wander.Environment
 import dev.ligature.wander.HostFunction
@@ -17,6 +17,7 @@ val coreModule = WanderValue.Module(
   Map(
     Field("eq") -> WanderValue.Function(
       HostFunction(
+        FieldPath(Seq(Field("Core"), Field("eq"))),
         "Check if two values are equal.",
         Seq(
           TaggedField(Field("left"), Tag.Untagged),
@@ -30,12 +31,23 @@ val coreModule = WanderValue.Module(
               Right((WanderValue.Bool(res), environment))
             case _ => ???
       )
-    )
+    ),
+    Field("environment") -> WanderValue.Function(
+      HostFunction(
+        FieldPath(Seq(Field("Core"), Field("environment"))),
+        "Read all Bindings in the current scope.",
+        Seq(TaggedField(Field(""), Tag.Untagged)),
+        Tag.Untagged,
+        (_, environment: Environment) =>
+          Right((environment.readAllBindings(), environment))
+      )
+    )    
   )
 )
 
 val importFunction = WanderValue.Function(
   HostFunction(
+    FieldPath(Seq(Field("import"))),
     "",
     Seq(TaggedField(Field("import"), Tag.Untagged)),
     Tag.Untagged,
@@ -48,8 +60,7 @@ val importFunction = WanderValue.Function(
             case Right(environment) =>
               Right((WanderValue.Module(Map()), environment))
         case x => Left(WanderError(s"Error: Unexpected value $x"))
-  )
-)
+  ))
 
 // HostFunction(
 //   Name("Core.Any"),
@@ -136,19 +147,6 @@ val importFunction = WanderValue.Function(
 // )
 //)
 
-//val coreProperties = Seq(
-// HostProperty(
-//   Name("Core.environment"),
-//   "Read all Bindings in the current scope.",
-//   Tag.Single(Name("Core.Module")),
-//   (environment: Environment) =>
-//     // val names: List[WanderValue] = environment.functions.map(f => WanderValue.String(f.name.name))
-//     // ++
-//     // environment.properties.map(f => WanderValue.String(f.name.name))
-//     // Right((WanderValue.Array(names), environment))
-//     Right((WanderValue.Nothing, environment))
-// )
-//)
 
 // private def readProperties(evironment: Environment): WanderValue.Module =
 //   ???

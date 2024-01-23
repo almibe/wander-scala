@@ -2,11 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.modules
+package dev.ligature.wander.host
 
 import dev.ligature.wander.Environment
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.Field
+import dev.ligature.wander.FieldPath
 import dev.ligature.wander.HostFunction
 import dev.ligature.wander.Tag
 import dev.ligature.wander.TaggedField
@@ -33,6 +34,7 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
     Map(
       Field("stores") -> WanderValue.Function(
         HostFunction(
+          FieldPath(Seq(Field("Keylime"), Field("stores"))),
           "Get an Array of all Store names.",
           Seq(TaggedField(Field("_"), Tag.Untagged)),
           Tag.Untagged,
@@ -55,6 +57,7 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
       ),
       Field("addStore") -> WanderValue.Function(
         HostFunction(
+          FieldPath(Seq(Field("Keylime"), Field("addStore"))),
           "Add a new Store.",
           Seq(TaggedField(Field("storeName"), Tag.Untagged)),
           Tag.Untagged,
@@ -71,6 +74,7 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
       ),
       Field("removeStore") -> WanderValue.Function(
         HostFunction(
+          FieldPath(Seq(Field("Keylime"), Field("removeStore"))),
           "Remove a Store.",
           Seq(TaggedField(Field("storeName"), Tag.Untagged)),
           Tag.Untagged,
@@ -85,6 +89,7 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
       ),
       Field("set") -> WanderValue.Function(
         HostFunction(
+          FieldPath(Seq(Field("Keylime"), Field("set"))),
           "Set a Value from a Store with the given Key.",
           Seq(
             TaggedField(Field("storeName"), Tag.Untagged),
@@ -112,6 +117,7 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
       ),
       Field("setAll") -> WanderValue.Function(
         HostFunction(
+          FieldPath(Seq(Field("Keylime"), Field("setAll"))),
           "Set an Array of Key Value pairs.",
           Seq(
             TaggedField(Field("storeName"), Tag.Untagged),
@@ -146,6 +152,7 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
       ),
       Field("get") -> WanderValue.Function(
         HostFunction(
+          FieldPath(Seq(Field("Keylime"), Field("get"))),
           "Retrieve a Value from a Store with the given Key.",
           Seq(
             TaggedField(Field("storeName"), Tag.Untagged),
@@ -167,6 +174,7 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
       ),
       Field("delete") -> WanderValue.Function(
         HostFunction(
+          FieldPath(Seq(Field("Keylime"), Field("delete"))),
           "Delete the entry with the given Key.",
           Seq(
             TaggedField(Field("storeName"), Tag.Untagged),
@@ -189,6 +197,7 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
       ),
       Field("entries") -> WanderValue.Function(
         HostFunction(
+          FieldPath(Seq(Field("Keylime"), Field("entries"))),
           "Retrieve all values in this store.",
           Seq(
             TaggedField(Field("storeName"), Tag.Untagged)
@@ -218,6 +227,7 @@ def createKeylimeModule(env: jetbrains.exodus.env.Environment): WanderValue.Modu
       ),
       Field("range") -> WanderValue.Function(
         HostFunction(
+          FieldPath(Seq(Field("Keylime"), Field("range"))),
           "Retrieve all values in this store.",
           Seq(
             TaggedField(Field("storeName"), Tag.Untagged),

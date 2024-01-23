@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.modules
+package dev.ligature.wander.host
 
 import javax.lang.model.`type`.ErrorType
 import dev.ligature.wander.HostFunction
@@ -10,6 +10,7 @@ import dev.ligature.wander.TaggedField
 import dev.ligature.wander.Tag
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.Field
+import dev.ligature.wander.FieldPath
 import jetbrains.exodus.bindings.LongBinding
 import jetbrains.exodus.ArrayByteIterable
 
@@ -17,6 +18,7 @@ val intModule = WanderValue.Module(
   Map(
     Field("add") -> WanderValue.Function(
       HostFunction(
+        FieldPath(Seq(Field("Int"), Field("add"))),
         "Add two Ints.",
         Seq(
           TaggedField(Field("left"), Tag.Untagged), // Tag.Single(Name("Core.Int"))),
@@ -32,6 +34,7 @@ val intModule = WanderValue.Module(
     ),
     Field("toBytes") -> WanderValue.Function(
       HostFunction(
+        FieldPath(Seq(Field("Int"), Field("toBytes"))),
         "Encode an Int as Bytes.",
         Seq(
           TaggedField(Field("value"), Tag.Untagged)
@@ -50,6 +53,7 @@ val intModule = WanderValue.Module(
     ),
     Field("fromBytes") -> WanderValue.Function(
       HostFunction(
+        FieldPath(Seq(Field("Int"), Field("fromBytes"))),
         "Decode Bytes to an Int.",
         Seq(
           TaggedField(Field("value"), Tag.Untagged)

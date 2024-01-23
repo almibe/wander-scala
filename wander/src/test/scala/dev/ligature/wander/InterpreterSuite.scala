@@ -6,7 +6,7 @@ package dev.ligature.wander
 
 import dev.ligature.wander.WanderValue
 import munit.FunSuite
-import dev.ligature.wander.modules.std
+import dev.ligature.wander.host.std
 
 class InterpreterSuite extends FunSuite {
   def check(script: String, expected: Map[Field, WanderValue]) =
