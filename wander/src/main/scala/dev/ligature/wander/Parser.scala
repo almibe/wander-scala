@@ -162,10 +162,10 @@ val conditionalsNib: Nibbler[Token, (Term, Term)] = { gaze =>
 
 val whenExpressionNib: Nibbler[Token, Term.WhenExpression] = { gaze =>
   for {
-    _ <- gaze.attempt(takeAll(take(Token.WhenKeyword), take(Token.OpenParen)))
+    _ <- gaze.attempt(takeAll(take(Token.WhenKeyword)))
     conditionals <- gaze.attempt(optionalSeq(repeatSep(conditionalsNib, Token.Comma)))
     // `else` <- gaze.attempt(optional(elseExpressionNib))
-    _ <- gaze.attempt(take(Token.CloseParen))
+    _ <- gaze.attempt(take(Token.EndKeyword))
   } yield Term.WhenExpression(conditionals)
 }
 

@@ -202,7 +202,7 @@ class ParserSuite extends FunSuite {
     assertEquals(result, expected)
   }
   test("parse when expression") {
-    val result = check("when ( true => 6, false => 7 )")
+    val result = check("when true => 6, false => 7 end")
     val expected = Right(
       Seq(
         Term.WhenExpression(
