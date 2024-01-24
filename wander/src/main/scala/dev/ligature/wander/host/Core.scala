@@ -13,9 +13,7 @@ import dev.ligature.wander.WanderError
 import dev.ligature.wander.Field
 import dev.ligature.wander.FieldPath
 
-val coreModule = WanderValue.Module(
-  Map(
-    Field("eq") -> WanderValue.Function(
+val coreFunctions = Seq(
       HostFunction(
         FieldPath(Seq(Field("Core"), Field("eq"))),
         "Check if two values are equal.",
@@ -30,9 +28,7 @@ val coreModule = WanderValue.Module(
               val res = first.asInstanceOf[WanderValue] == second.asInstanceOf[WanderValue]
               Right((WanderValue.Bool(res), environment))
             case _ => ???
-      )
-    ),
-    Field("environment") -> WanderValue.Function(
+      ),
       HostFunction(
         FieldPath(Seq(Field("Core"), Field("environment"))),
         "Read all Bindings in the current scope.",
@@ -40,10 +36,8 @@ val coreModule = WanderValue.Module(
         Tag.Untagged,
         (_, environment: Environment) =>
           Right((environment.readAllBindings(), environment))
-      )
+      ),
     )    
-  )
-)
 
 val importFunction = WanderValue.Function(
   HostFunction(

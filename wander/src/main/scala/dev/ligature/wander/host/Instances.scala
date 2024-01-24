@@ -4,6 +4,7 @@
 
 package dev.ligature.wander.host
 
+import dev.ligature.wander.libraries.HostLibrary
 import dev.ligature.wander.WanderValue
 import scala.collection.mutable.ListBuffer
 import dev.ligature.wander.*
@@ -27,17 +28,8 @@ val wmdn: Environment = Environment()
 /** Create the "default" environment for working with Wander.
   */
 def std(loaders: List[ModuleLibrary] = List()): Environment =
-  Environment(loaders)
-    .bindVariable(Field("Array"), arrayModule)
-    .bindVariable(Field("Bool"), boolModule)
-    .bindVariable(Field("Bytes"), bytesModel)
-    .bindVariable(Field("Core"), coreModule)
-    .bindVariable(Field("Http"), httpModule)
-    .bindVariable(Field("Int"), intModule)
-//    .bindVariable(Field("Module"), moduleModule)
-//    .bindVariable(Field("Shape"), shapeModule)
-    .bindVariable(Field("String"), stringModule)
-//    .bindVariable(Field("Test"), testingModule)
+  Environment(loaders ++ List(HostLibrary(arrayFunctions ++ boolFunctions ++ bytesFunctions ++
+    coreFunctions ++ httpFunctions ++ intFunctions ++ moduleFunctions ++ stringFunctions ++ testingFunctions)))
     .bindVariable(Field("import"), importFunction)
 
 def stdWithKeylime(

@@ -10,7 +10,9 @@ import dev.ligature.wander.WanderValue
 import dev.ligature.wander.FieldPath
 import dev.ligature.wander.HostFunction
 
-final class HostLoader(hostFunctions: Seq[HostFunction]) extends ModuleLibrary {
+final class HostLibrary(hostFunctions: Seq[HostFunction]) extends ModuleLibrary {
   override def lookup(path: FieldPath): Either[WanderError, Option[WanderValue]] =
-    ???
+    hostFunctions.find(fn => fn.name == path) match
+      case Some(value: HostFunction) => Right(Some(WanderValue.Function(value)))
+      case None => Right(None)
 }

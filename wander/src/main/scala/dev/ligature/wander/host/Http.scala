@@ -6,8 +6,6 @@ package dev.ligature.wander.host
 
 import dev.ligature.wander.Environment
 import dev.ligature.wander.WanderValue
+import dev.ligature.wander.HostFunction
 
-val httpModule = WanderValue.Module(
-  Map(
-  )
-)
+val httpFunctions = Seq[HostFunction]()

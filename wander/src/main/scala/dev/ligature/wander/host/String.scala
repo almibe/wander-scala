@@ -13,9 +13,7 @@ import dev.ligature.wander.FieldPath
 import jetbrains.exodus.bindings.StringBinding
 import jetbrains.exodus.ArrayByteIterable
 
-val stringModule = WanderValue.Module(
-  Map(
-    Field("toBytes") -> WanderValue.Function(
+val stringFunctions = Seq(
       HostFunction(
         FieldPath(Seq(Field("String"), Field("toBytes"))),
         "Get a String encoded as Bytes.",
@@ -32,9 +30,7 @@ val stringModule = WanderValue.Module(
                   environment
                 )
               )
-      )
-    ),
-    Field("fromBytes") -> WanderValue.Function(
+      ),
       HostFunction(
         FieldPath(Seq(Field("String"), Field("fromBytes"))),
         "Decode Bytes to a String.",
@@ -53,5 +49,3 @@ val stringModule = WanderValue.Module(
               )
       )
     )
-  )
-)
