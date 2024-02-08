@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.host
+package dev.ligature.wander.modules
 
 import dev.ligature.wander.Environment
 import dev.ligature.wander.Token
@@ -20,7 +20,7 @@ import jetbrains.exodus.ArrayByteIterable
 
 val boolFunctions = Seq(
       HostFunction(
-        FieldPath(Seq(Field("Bool"), Field("not"))),
+        // FieldPath(Seq(Field("Bool"), Field("not"))),
         "Perform a not operation on a Bool value.",
         Seq(TaggedField(Field("value"), Tag.Untagged)),
         Tag.Untagged,
@@ -30,7 +30,7 @@ val boolFunctions = Seq(
             case _                            => ???
       ),
       HostFunction(
-        FieldPath(Seq(Field("Bool"), Field("and"))),
+        // FieldPath(Seq(Field("Bool"), Field("and"))),
         "Perform a logical and on two Bools.",
         Seq(TaggedField(Field("left"), Tag.Untagged), TaggedField(Field("right"), Tag.Untagged)),
         Tag.Untagged,
@@ -41,14 +41,14 @@ val boolFunctions = Seq(
             case _ => ???
       ),
       HostFunction(
-        FieldPath(Seq(Field("Bool"), Field("or"))),
+        // FieldPath(Seq(Field("Bool"), Field("or"))),
         "Perform a logical or on two Bools.",
         Seq(TaggedField(Field("left"), Tag.Untagged), TaggedField(Field("right"), Tag.Untagged)),
         Tag.Untagged,
         (args, environment) => ???
       ),
       HostFunction(
-        FieldPath(Seq(Field("Bool"), Field("toBytes"))),
+        // FieldPath(Seq(Field("Bool"), Field("toBytes"))),
         "Encod a Bool as Bytes.",
         Seq(
           TaggedField(Field("value"), Tag.Untagged)
@@ -65,7 +65,7 @@ val boolFunctions = Seq(
               )
       ),
       HostFunction(
-        FieldPath(Seq(Field("Bool"), Field("fromBytes"))),
+        // FieldPath(Seq(Field("Bool"), Field("fromBytes"))),
         "Decode Bytes to a Bool.",
         Seq(
           TaggedField(Field("value"), Tag.Untagged)

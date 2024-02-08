@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.host
+package dev.ligature.wander.modules
 
 import dev.ligature.wander.HostFunction
 import dev.ligature.wander.Environment
@@ -15,7 +15,7 @@ import dev.ligature.wander.WanderError
 
 val testingFunctions = Seq(
   HostFunction(
-    FieldPath(Seq(Field("Test"), Field("assertEq"))),
+    // FieldPath(Seq(Field("Test"), Field("assertEq"))),
     "Check if two values are equal and fail if they are not.",
     Seq(
       TaggedField(Field("description"), Tag.Untagged),

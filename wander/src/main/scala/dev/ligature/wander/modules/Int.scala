@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.host
+package dev.ligature.wander.modules
 
 import javax.lang.model.`type`.ErrorType
 import dev.ligature.wander.HostFunction
@@ -16,7 +16,7 @@ import jetbrains.exodus.ArrayByteIterable
 
 val intFunctions = Seq(
       HostFunction(
-        FieldPath(Seq(Field("Int"), Field("add"))),
+        // FieldPath(Seq(Field("Int"), Field("add"))),
         "Add two Ints.",
         Seq(
           TaggedField(Field("left"), Tag.Untagged), // Tag.Single(Name("Core.Int"))),
@@ -30,7 +30,7 @@ val intFunctions = Seq(
             case _ => ???
       ),
       HostFunction(
-        FieldPath(Seq(Field("Int"), Field("toBytes"))),
+        // FieldPath(Seq(Field("Int"), Field("toBytes"))),
         "Encode an Int as Bytes.",
         Seq(
           TaggedField(Field("value"), Tag.Untagged)
@@ -47,7 +47,7 @@ val intFunctions = Seq(
               )
       ),
       HostFunction(
-        FieldPath(Seq(Field("Int"), Field("fromBytes"))),
+        // FieldPath(Seq(Field("Int"), Field("fromBytes"))),
         "Decode Bytes to an Int.",
         Seq(
           TaggedField(Field("value"), Tag.Untagged)

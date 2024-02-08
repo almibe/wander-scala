@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.host
+package dev.ligature.wander.modules
 
 import dev.ligature.wander.Environment
 import dev.ligature.wander.HostFunction
@@ -15,7 +15,7 @@ import dev.ligature.wander.FieldPath
 
 val coreFunctions = Seq(
       HostFunction(
-        FieldPath(Seq(Field("Core"), Field("eq"))),
+        // FieldPath(Seq(Field("Core"), Field("eq"))),
         "Check if two values are equal.",
         Seq(
           TaggedField(Field("left"), Tag.Untagged),
@@ -30,7 +30,7 @@ val coreFunctions = Seq(
             case _ => ???
       ),
       HostFunction(
-        FieldPath(Seq(Field("Core"), Field("environment"))),
+        // FieldPath(Seq(Field("Core"), Field("environment"))),
         "Read all Bindings in the current scope.",
         Seq(TaggedField(Field(""), Tag.Untagged)),
         Tag.Untagged,
@@ -41,7 +41,7 @@ val coreFunctions = Seq(
 
 val importFunction = WanderValue.Function(
   HostFunction(
-    FieldPath(Seq(Field("import"))),
+    // FieldPath(Seq(Field("import"))),
     "",
     Seq(TaggedField(Field("import"), Tag.Untagged)),
     Tag.Untagged,

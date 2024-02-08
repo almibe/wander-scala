@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.host
+package dev.ligature.wander.modules
 
 import dev.ligature.wander.libraries.HostLibrary
 import dev.ligature.wander.WanderValue
@@ -27,16 +27,17 @@ val wmdn: Environment = Environment()
 
 /** Create the "default" environment for working with Wander.
   */
-def std(loaders: List[ModuleLibrary] = List()): Environment =
-  Environment(loaders ++ List(HostLibrary(arrayFunctions ++ boolFunctions ++ bytesFunctions ++
-    coreFunctions ++ httpFunctions ++ intFunctions ++ moduleFunctions ++ stringFunctions ++ testingFunctions)))
-    .bindVariable(Field("import"), importFunction)
+def std(loaders: List[ModuleLibrary] = List()): Environment = 
+  Environment()
+  // Environment(loaders ++ List(HostLibrary(arrayFunctions ++ boolFunctions ++ bytesFunctions ++
+  //   coreFunctions ++ httpFunctions ++ intFunctions ++ moduleFunctions ++ stringFunctions ++ testingFunctions)))
+  //   .bindVariable(Field("import"), importFunction)
 
 def stdWithKeylime(
     env: jetbrains.exodus.env.Environment,
     loaders: List[ModuleLibrary] = List()
-): Environment =
-  std(loaders).bindVariable(
-    Field("Keylime"),
-    createKeylimeModule(env)
-  ) // this should add a loader instead of binding a varible
+): Environment = ???
+  // std(loaders).bindVariable(
+  //   Field("Keylime"),
+  //   createKeylimeModule(env)
+  // ) // this should add a loader instead of binding a varible

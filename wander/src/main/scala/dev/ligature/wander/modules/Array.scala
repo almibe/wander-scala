@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.host
+package dev.ligature.wander.modules
 
 import dev.ligature.wander.Environment
 import dev.ligature.wander.WanderValue
@@ -14,7 +14,7 @@ import dev.ligature.wander.TaggedField
 
 val arrayFunctions = Seq(
       HostFunction(
-        FieldPath(Seq(Field("Array"), Field("length"))),
+//        FieldPath(Seq(Field("Array"), Field("length"))),
         "Get the number of elements in an Array.",
         Seq(TaggedField(Field("array"), Tag.Untagged)),
         Tag.Untagged,

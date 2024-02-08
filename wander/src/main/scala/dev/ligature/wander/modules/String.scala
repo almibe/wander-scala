@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package dev.ligature.wander.host
+package dev.ligature.wander.modules
 
 import dev.ligature.wander.HostFunction
 import dev.ligature.wander.TaggedField
@@ -15,7 +15,7 @@ import jetbrains.exodus.ArrayByteIterable
 
 val stringFunctions = Seq(
       HostFunction(
-        FieldPath(Seq(Field("String"), Field("toBytes"))),
+        // FieldPath(Seq(Field("String"), Field("toBytes"))),
         "Get a String encoded as Bytes.",
         Seq(
           TaggedField(Field("value"), Tag.Untagged)
@@ -32,7 +32,7 @@ val stringFunctions = Seq(
               )
       ),
       HostFunction(
-        FieldPath(Seq(Field("String"), Field("fromBytes"))),
+        // FieldPath(Seq(Field("String"), Field("fromBytes"))),
         "Decode Bytes to a String.",
         Seq(
           TaggedField(Field("value"), Tag.Untagged)
