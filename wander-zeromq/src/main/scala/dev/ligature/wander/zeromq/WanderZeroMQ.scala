@@ -13,11 +13,10 @@ import dev.ligature.wander.printResult
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.io.File
-import dev.ligature.wander.host.std
 import dev.ligature.wander.*
 import com.typesafe.scalalogging.Logger
 import dev.ligature.wander.libraries.*
-import dev.ligature.wander.host.*
+import dev.ligature.wander.modules.*
 
 private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
   private val zContext = ZContext()
@@ -30,17 +29,18 @@ private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
     while (!Thread.currentThread().isInterrupted() && continue)
       try
         val query = String(socket.recv(0), ZMQ.CHARSET) // blocks waiting for a request
-        loadFromPath(File(sys.env("WANDER_LIBS")).toPath(), std) match
-          case Left(value) => throw RuntimeException(value)
-          case Right(environment) =>
-            val request = runWander(query, wmdn)
-            request match {
-              case Left(err) => throw RuntimeException(err)
-              case Right(WanderValue.Module(request), _) =>
-                val result = runRequest(request, environment)
-                socket.send(result.getBytes(ZMQ.CHARSET), 0)
-              case _ => socket.send(printError("Unexpected input.").getBytes(ZMQ.CHARSET), 0)
-            }
+        ???
+        // loadFromPath(File(sys.env("WANDER_LIBS")).toPath(), std) match
+        //   case Left(value) => throw RuntimeException(value)
+        //   case Right(environment) =>
+        //     val request = runWander(query, wmdn)
+        //     request match {
+        //       case Left(err) => throw RuntimeException(err)
+        //       case Right(WanderValue.Module(request), _) =>
+        //         val result = runRequest(request, environment)
+        //         socket.send(result.getBytes(ZMQ.CHARSET), 0)
+        //       case _ => socket.send(printError("Unexpected input.").getBytes(ZMQ.CHARSET), 0)
+        //     }
       catch
         case e =>
           socket.close()

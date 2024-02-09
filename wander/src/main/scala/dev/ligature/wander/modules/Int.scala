@@ -14,7 +14,9 @@ import dev.ligature.wander.FieldPath
 import jetbrains.exodus.bindings.LongBinding
 import jetbrains.exodus.ArrayByteIterable
 
-val intFunctions = Seq(
+val intModule: WanderValue.Module = WanderValue.Module(
+  Map(
+    Field("add") -> WanderValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("Int"), Field("add"))),
         "Add two Ints.",
@@ -28,7 +30,9 @@ val intFunctions = Seq(
             case Seq(WanderValue.Int(left), WanderValue.Int(right)) =>
               Right((WanderValue.Int(left + right), environment))
             case _ => ???
-      ),
+      )
+    ),
+    Field("toBytes") -> WanderValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("Int"), Field("toBytes"))),
         "Encode an Int as Bytes.",
@@ -45,7 +49,9 @@ val intFunctions = Seq(
                   environment
                 )
               )
-      ),
+      )
+    ),
+    Field("fromBytes") -> WanderValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("Int"), Field("fromBytes"))),
         "Decode Bytes to an Int.",
@@ -64,3 +70,5 @@ val intFunctions = Seq(
               )
       )
     )
+  )
+)

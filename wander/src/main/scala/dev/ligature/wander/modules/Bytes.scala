@@ -8,4 +8,4 @@ import dev.ligature.wander.Environment
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.HostFunction
 
-val bytesFunctions = Seq[HostFunction]()
+val bytesModule: WanderValue.Module = WanderValue.Module(Map())

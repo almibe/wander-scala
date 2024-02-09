@@ -7,7 +7,7 @@ package dev.ligature.wander.zeromq
 import munit.*
 import org.zeromq.{ZMQ, SocketType, ZContext}
 import dev.ligature.wander.*
-import dev.ligature.wander.libraries.*
+import dev.ligature.wander.modules.*
 
 class LigatureZeroMQSuite extends FunSuite {
   val port = 4201

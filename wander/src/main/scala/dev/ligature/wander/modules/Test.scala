@@ -13,23 +13,29 @@ import dev.ligature.wander.Tag
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.WanderError
 
-val testingFunctions = Seq(
-  HostFunction(
-    // FieldPath(Seq(Field("Test"), Field("assertEq"))),
-    "Check if two values are equal and fail if they are not.",
-    Seq(
-      TaggedField(Field("description"), Tag.Untagged),
-      TaggedField(Field("left"), Tag.Untagged),
-      TaggedField(Field("right"), Tag.Untagged)
-    ),
-    Tag.Untagged,
-    (arguments, environment) =>
-      arguments match {
-        case Seq(description: WanderValue.String, left: WanderValue, right: WanderValue) =>
-          if left != right then
-            Left(WanderError(s"$description failed $left != $right")) // TODO print value correctly
-          else Right(WanderValue.Module(Map()), environment)
-        case _ => Left(WanderError(s"Test.assertEq failed: $arguments"))
-      }
+val testingModule: WanderValue.Module = WanderValue.Module(
+  Map(
+    Field("assertEq") -> WanderValue.Function(
+      HostFunction(
+        // FieldPath(Seq(Field("Test"), Field("assertEq"))),
+        "Check if two values are equal and fail if they are not.",
+        Seq(
+          TaggedField(Field("description"), Tag.Untagged),
+          TaggedField(Field("left"), Tag.Untagged),
+          TaggedField(Field("right"), Tag.Untagged)
+        ),
+        Tag.Untagged,
+        (arguments, environment) =>
+          arguments match {
+            case Seq(description: WanderValue.String, left: WanderValue, right: WanderValue) =>
+              if left != right then
+                Left(
+                  WanderError(s"$description failed $left != $right")
+                ) // TODO print value correctly
+              else Right(WanderValue.Module(Map()), environment)
+            case _ => Left(WanderError(s"Test.assertEq failed: $arguments"))
+          }
+      )
+    )
   )
 )

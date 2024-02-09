@@ -12,9 +12,10 @@ import dev.ligature.wander.Tag
 import dev.ligature.wander.FieldPath
 import dev.ligature.wander.TaggedField
 
-val arrayFunctions = Seq(
+val arrayModule: WanderValue.Module = WanderValue.Module(
+  Map(
+    Field("length") -> WanderValue.Function(
       HostFunction(
-//        FieldPath(Seq(Field("Array"), Field("length"))),
         "Get the number of elements in an Array.",
         Seq(TaggedField(Field("array"), Tag.Untagged)),
         Tag.Untagged,
@@ -25,3 +26,5 @@ val arrayFunctions = Seq(
             case _ => ???
       )
     )
+  )
+)

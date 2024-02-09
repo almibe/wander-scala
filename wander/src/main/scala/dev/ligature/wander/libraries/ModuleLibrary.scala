@@ -8,5 +8,7 @@ import dev.ligature.wander.FieldPath
 import dev.ligature.wander.WanderValue
 import dev.ligature.wander.WanderError
 
+type ModuleId = String
+
 trait ModuleLibrary:
-  def lookup(path: FieldPath): Either[WanderError, Option[WanderValue]]
+  def lookup(id: ModuleId): Either[WanderError, Option[WanderValue.Module]]

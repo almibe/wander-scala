@@ -18,10 +18,12 @@ case class Environment(
 ) {
   def readAllBindings(): WanderValue.Array = {
     val results = ListBuffer[WanderValue]()
-    //TODO query libraries
+    // TODO query libraries
     scopes.foreach((scope: Map[Field, (Tag, WanderValue)]) =>
       scope.foreach((k, v) =>
-        results += WanderValue.Array(Seq(WanderValue.String(k.name), WanderValue.String(printWanderValue(v._2))))
+        results += WanderValue.Array(
+          Seq(WanderValue.String(k.name), WanderValue.String(printWanderValue(v._2)))
+        )
       )
     )
     WanderValue.Array(results.toSeq)
@@ -93,9 +95,6 @@ case class Environment(
 
   def read(fieldPath: FieldPath): Either[WanderError, Option[WanderValue]] =
     boundary:
-      var libraryResult: Option[WanderValue] = this.libraries(0).lookup(fieldPath) match
-        case err: Left[WanderError, _] => break(err)
-        case Right(value) => value
       var result: Option[WanderValue] = None
       fieldPath.parts.foreach(field =>
         if result.isEmpty then
@@ -110,10 +109,7 @@ case class Environment(
               else Left(WanderError(s"Could not read field path, $fieldPath."))
             case _ => ???
       )
-      if result.isDefined then
-        Right(result)
-      else
-        Right(libraryResult)
+      Right(result)
 
   def importModule(fieldPath: FieldPath): Either[WanderError, Environment] =
     var currentEnvironemnt = this

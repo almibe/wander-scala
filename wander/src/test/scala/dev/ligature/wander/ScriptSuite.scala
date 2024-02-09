@@ -6,9 +6,10 @@ package dev.ligature.wander
 
 import java.io.File
 import scala.io.Source
-import dev.ligature.wander.host.std
+import dev.ligature.wander.modules.std
 import java.nio.file.Path
 import dev.ligature.wander.libraries.loadFromPath
+import dev.ligature.wander.libraries.DirectoryLibrary
 
 class ScriptSuite extends munit.FunSuite {
   sys.env.get("WANDER_TEST_SUITE") match {
@@ -20,14 +21,12 @@ class ScriptSuite extends munit.FunSuite {
         .toList
       files.foreach { f =>
         val script = Source.fromFile(f).mkString
-        loadFromPath(Path.of(dir)) match
-          case Left(value) => throw RuntimeException(value)
-          case Right(environment) =>
-            run(script, environment) match {
-              case Left(err) => fail(f.toString() + err.toString())
-              case Right((results, _)) =>
-                evaluateResults(results, f)
-            }
+        val library = DirectoryLibrary(Path.of(dir))
+        run(script, Environment(Seq(library))) match {
+          case Left(err) => fail(f.toString() + err.toString())
+          case Right((results, _)) =>
+            evaluateResults(results, f)
+        }
       }
     case None => ()
   }

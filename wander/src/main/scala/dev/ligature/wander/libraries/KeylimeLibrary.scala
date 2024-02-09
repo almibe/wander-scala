@@ -9,6 +9,6 @@ import dev.ligature.wander.WanderValue
 import dev.ligature.wander.WanderError
 
 final class KeylimeModuleLibrary extends ModuleLibrary {
-  override def lookup(path: FieldPath): Either[WanderError, Option[WanderValue]] =
+  override def lookup(id: ModuleId): Either[WanderError, Option[WanderValue.Module]] =
     ???
 }

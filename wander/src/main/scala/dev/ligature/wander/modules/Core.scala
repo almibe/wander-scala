@@ -13,9 +13,10 @@ import dev.ligature.wander.WanderError
 import dev.ligature.wander.Field
 import dev.ligature.wander.FieldPath
 
-val coreFunctions = Seq(
+val coreModule: WanderValue.Module = WanderValue.Module(
+  Map(
+    Field("eq") -> WanderValue.Function(
       HostFunction(
-        // FieldPath(Seq(Field("Core"), Field("eq"))),
         "Check if two values are equal.",
         Seq(
           TaggedField(Field("left"), Tag.Untagged),
@@ -28,16 +29,18 @@ val coreFunctions = Seq(
               val res = first.asInstanceOf[WanderValue] == second.asInstanceOf[WanderValue]
               Right((WanderValue.Bool(res), environment))
             case _ => ???
-      ),
+      )
+    ),
+    Field("environment") -> WanderValue.Function(
       HostFunction(
-        // FieldPath(Seq(Field("Core"), Field("environment"))),
         "Read all Bindings in the current scope.",
         Seq(TaggedField(Field(""), Tag.Untagged)),
         Tag.Untagged,
-        (_, environment: Environment) =>
-          Right((environment.readAllBindings(), environment))
-      ),
-    )    
+        (_, environment: Environment) => Right((environment.readAllBindings(), environment))
+      )
+    )
+  )
+)
 
 val importFunction = WanderValue.Function(
   HostFunction(
@@ -54,7 +57,8 @@ val importFunction = WanderValue.Function(
             case Right(environment) =>
               Right((WanderValue.Module(Map()), environment))
         case x => Left(WanderError(s"Error: Unexpected value $x"))
-  ))
+  )
+)
 
 // HostFunction(
 //   Name("Core.Any"),
@@ -140,7 +144,6 @@ val importFunction = WanderValue.Function(
 //       case Seq(WanderValue.String(message)) => Left(WanderError(message))
 // )
 //)
-
 
 // private def readProperties(evironment: Environment): WanderValue.Module =
 //   ???

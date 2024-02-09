@@ -31,6 +31,7 @@ lazy val wander = project
     libraryDependencies += "ch.qos.logback" % "logback-classic" % logBackVersion,
     libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
     libraryDependencies += "org.scalameta" %% "munit" % munitVersion % Test,
+    libraryDependencies += "org.graalvm.polyglot" % "js" % "23.1.2" % Test,
   )
   .dependsOn(gaze)
   .disablePlugins(RevolverPlugin)

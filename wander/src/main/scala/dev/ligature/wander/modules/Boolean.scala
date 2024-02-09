@@ -18,7 +18,9 @@ import dev.ligature.wander.eval
 import jetbrains.exodus.bindings.BooleanBinding
 import jetbrains.exodus.ArrayByteIterable
 
-val boolFunctions = Seq(
+val boolModule: WanderValue.Module = WanderValue.Module(
+  Map(
+    Field("not") -> WanderValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("Bool"), Field("not"))),
         "Perform a not operation on a Bool value.",
@@ -28,7 +30,9 @@ val boolFunctions = Seq(
           args match
             case Seq(WanderValue.Bool(value)) => Right((WanderValue.Bool(!value), environment))
             case _                            => ???
-      ),
+      )
+    ),
+    Field("and") -> WanderValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("Bool"), Field("and"))),
         "Perform a logical and on two Bools.",
@@ -39,14 +43,18 @@ val boolFunctions = Seq(
             case Seq(WanderValue.Bool(left), WanderValue.Bool(right)) =>
               Right((WanderValue.Bool(left && right), environment))
             case _ => ???
-      ),
+      )
+    ),
+    Field("or") -> WanderValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("Bool"), Field("or"))),
         "Perform a logical or on two Bools.",
         Seq(TaggedField(Field("left"), Tag.Untagged), TaggedField(Field("right"), Tag.Untagged)),
         Tag.Untagged,
         (args, environment) => ???
-      ),
+      )
+    ),
+    Field("toBytes") -> WanderValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("Bool"), Field("toBytes"))),
         "Encod a Bool as Bytes.",
@@ -63,7 +71,9 @@ val boolFunctions = Seq(
                   environment
                 )
               )
-      ),
+      )
+    ),
+    Field("fromBytes") -> WanderValue.Function(
       HostFunction(
         // FieldPath(Seq(Field("Bool"), Field("fromBytes"))),
         "Decode Bytes to a Bool.",
@@ -82,6 +92,8 @@ val boolFunctions = Seq(
               )
       )
     )
+  )
+)
 
 //   stdLib = stdLib
 //     .bindVariable(
