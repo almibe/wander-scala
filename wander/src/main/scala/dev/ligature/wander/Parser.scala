@@ -324,7 +324,18 @@ val scriptNib: Nibbler[Token, Seq[Term]] = { gaze =>
                     case term: Term.FieldPathTerm =>
                       results += Term.Application(Seq(term, pipedTerm))
                     case _ => break(Result.NoMatch)
-            case Some(Token.Pipe) => pipedValue = Some(value)
+            case Some(Token.Pipe) => 
+              pipedValue match
+                case None => pipedValue = Some(value)
+                case Some(pipedTerm: Term) =>
+                  value match
+                    case Term.Application(terms) =>
+                      pipedValue = Some(Term.Application(terms ++ Seq(pipedTerm)))
+                    case term: Term.FieldTerm =>
+                      pipedValue = Some(Term.Application(Seq(term, pipedTerm)))
+                    case term: Term.FieldPathTerm =>
+                      pipedValue = Some(Term.Application(Seq(term, pipedTerm)))
+                    case _ => break(Result.NoMatch)
             case Some(_)          => break(Result.NoMatch)
     break(Result.Match(results.toSeq))
 }

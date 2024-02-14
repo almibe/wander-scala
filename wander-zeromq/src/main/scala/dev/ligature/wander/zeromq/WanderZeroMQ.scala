@@ -62,6 +62,9 @@ def runRequest(request: Map[Field, WanderValue], environment: Environment): Stri
         case Right(value) =>
           printWanderValue(WanderValue.Module(Map(Field("result") -> value(0))))
       }
+    case ((Some(WanderValue.String("inspect")), Some(WanderValue.String(script)))) =>
+      val res = inspect(script)
+      res.toString
     case _ =>
       printWanderValue(
         WanderValue.Module(

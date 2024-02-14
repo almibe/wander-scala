@@ -77,13 +77,13 @@ def run(
     case Left(value)  => Left(value)
     case Right(value) => environment.eval(value)
 
-case class Introspect(
+case class Inspect(
     tokens: Either[WanderError, Seq[Token]],
     terms: Either[WanderError, Seq[Term]],
     expression: Either[WanderError, Seq[Expression]]
 )
 
-def introspect(script: String): Introspect = {
+def inspect(script: String): Inspect = {
   val tokens = tokenize(script)
 
   val terms = if (tokens.isRight) {
@@ -98,7 +98,7 @@ def introspect(script: String): Introspect = {
     Left(WanderError("Previous error."))
   }
 
-  Introspect(tokens, terms, expression)
+  Inspect(tokens, terms, expression)
 }
 
 def printResult(value: Either[WanderError, (WanderValue, Environment)]): String =
