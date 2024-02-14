@@ -25,28 +25,26 @@ private class WanderZServer(val port: Int) extends Runnable with AutoCloseable {
     val socket = zContext.createSocket(SocketType.REP)
     socket.bind(s"tcp://localhost:$port")
     var continue = true
-    val std = stdWithKeylime(openDefault())
-    while (!Thread.currentThread().isInterrupted() && continue)
+    //val std = stdWithKeylime(openDefault())
+    while (!Thread.currentThread().isInterrupted() && continue) {
       try
         val query = String(socket.recv(0), ZMQ.CHARSET) // blocks waiting for a request
-        ???
-        // loadFromPath(File(sys.env("WANDER_LIBS")).toPath(), std) match
-        //   case Left(value) => throw RuntimeException(value)
-        //   case Right(environment) =>
-        //     val request = runWander(query, wmdn)
-        //     request match {
-        //       case Left(err) => throw RuntimeException(err)
-        //       case Right(WanderValue.Module(request), _) =>
-        //         val result = runRequest(request, environment)
-        //         socket.send(result.getBytes(ZMQ.CHARSET), 0)
-        //       case _ => socket.send(printError("Unexpected input.").getBytes(ZMQ.CHARSET), 0)
-        //     }
+        val library = DirectoryLibrary(File(sys.env("WANDER_LIBS")).toPath())
+        val environment = std(List(library))
+        val request = runWander(query, wmdn)
+        request match
+          case Left(err) => throw RuntimeException(err)
+          case Right(WanderValue.Module(request), _) =>
+            val result = runRequest(request, environment)
+            socket.send(result.getBytes(ZMQ.CHARSET), 0)
+          case _ => socket.send(printError("Unexpected input.").getBytes(ZMQ.CHARSET), 0)
       catch
         case e =>
           socket.close()
           zContext.close()
           e.printStackTrace()
           continue = false
+    }
 
   override def close(): Unit = zContext.close()
 }
@@ -87,5 +85,5 @@ def runServer(port: Int): AutoCloseable = {
 
 @main def main =
   val logger = Logger("name")
-  val server = WanderZServer(4205)
+  val server = WanderZServer(4200)
   server.run()

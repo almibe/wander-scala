@@ -29,7 +29,7 @@ val boolModule: WanderValue.Module = WanderValue.Module(
         (args, environment) =>
           args match
             case Seq(WanderValue.Bool(value)) => Right((WanderValue.Bool(!value), environment))
-            case _                            => ???
+            case _                            => Left(WanderError("Unexpected input " + args))
       )
     ),
     Field("and") -> WanderValue.Function(

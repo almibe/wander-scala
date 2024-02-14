@@ -28,24 +28,22 @@ val wmdn: Environment = Environment()
 /** Create the "default" environment for working with Wander.
   */
 def std(libraries: List[ModuleLibrary] = List()): Environment =
-  Environment(Seq(HostLibrary(Map(
-    "Array" -> arrayModule,
-  //  "Bool" -> boolModule,
-    "Bytes" -> bytesModule,
-    "Core" -> coreModule,
-    "Int" -> intModule,
-    "Module" -> moduleModule,
-    "String" -> stringModule,
-    "Test" -> testingModule
-  ))))
-  .bindVariable(Field("Bool"), boolModule)
-  .bindVariable(Field("import"), importFunction)
+  Environment(libraries)
+    .bindVariable(Field("Array"), arrayModule)
+    .bindVariable(Field("Bool"), boolModule)
+    .bindVariable(Field("Bytes"), bytesModule)
+    .bindVariable(Field("Core"), coreModule)
+    .bindVariable(Field("Int"), intModule)
+    .bindVariable(Field("Module"), moduleModule)
+    .bindVariable(Field("String"), stringModule)
+    .bindVariable(Field("Test"), testingModule)
+    .bindVariable(Field("import"), importFunction)
 
 def stdWithKeylime(
     env: jetbrains.exodus.env.Environment,
-    loaders: List[ModuleLibrary] = List()
-): Environment = ???
-// std(loaders).bindVariable(
-//   Field("Keylime"),
-//   createKeylimeModule(env)
-// ) // this should add a loader instead of binding a varible
+    libraries: List[ModuleLibrary] = List()
+): Environment =
+std(libraries).bindVariable(
+  Field("Keylime"),
+  createKeylimeModule(env)
+)
