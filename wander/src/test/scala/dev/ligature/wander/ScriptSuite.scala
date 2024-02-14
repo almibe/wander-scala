@@ -22,7 +22,7 @@ class ScriptSuite extends munit.FunSuite {
       files.foreach { f =>
         val script = Source.fromFile(f).mkString
         val library = DirectoryLibrary(Path.of(dir))
-        run(script, Environment(Seq(library))) match {
+        run(script, std(List(library))) match {
           case Left(err) => fail(f.toString() + err.toString())
           case Right((results, _)) =>
             evaluateResults(results, f)
