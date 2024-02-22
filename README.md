@@ -1,2 +1,3 @@
 # wander-scala
-An implementation of the Wander programming language using Scala 3.
+
+Note: Work on this project has been moved to https://github.com/almibe/ligature-scala.
